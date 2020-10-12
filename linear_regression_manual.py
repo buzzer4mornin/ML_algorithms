@@ -23,6 +23,9 @@ def main(args):
     # print(dataset.DESCR)
 
     # TODO: Append a new feature to all input data, with value "1"
+    X = np.asarray(dataset.data)
+    Y = np.asarray(dataset.target)
+    X = np.c_[np.ones(X.shape[0]), X]
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
