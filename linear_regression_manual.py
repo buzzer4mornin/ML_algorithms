@@ -37,7 +37,7 @@ def main(args):
 
     # TODO: Solve the linear regression using the algorithm from the lecture,
     # explicitly computing the matrix inverse (using `np.linalg.inv`).
-
+    theta = np.dot(np.dot(np.linalg.inv(np.dot(X_train.T, X_train)), X_train.T), Y_train)
 
     # TODO: Predict target values on the test set
 
