@@ -5,6 +5,7 @@ import numpy as np
 import sklearn.datasets
 import sklearn.metrics
 import sklearn.model_selection
+from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
@@ -26,13 +27,17 @@ def main(args):
     X = np.asarray(dataset.data)
     Y = np.asarray(dataset.target)
     X = np.c_[np.ones(X.shape[0]), X]
+    print(X)
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
+    X_train, X_test, Y_train, vY_test = train_test_split(X, Y, test_size=args.test_size / X.shape[0],
+                                                        random_state=args.seed)
 
     # TODO: Solve the linear regression using the algorithm from the lecture,
     # explicitly computing the matrix inverse (using `np.linalg.inv`).
+
 
     # TODO: Predict target values on the test set
 
