@@ -40,6 +40,7 @@ def main(args):
     theta = np.dot(np.dot(np.linalg.inv(np.dot(X_train.T, X_train)), X_train.T), Y_train)
 
     # TODO: Predict target values on the test set
+    predicted_Y = np.dot(X_test, theta)
 
     # TODO: Compute root mean square error on the test set predictions
     rmse = None
