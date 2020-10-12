@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-
 import numpy as np
 import sklearn.datasets
 import sklearn.metrics
@@ -27,12 +26,11 @@ def main(args):
     X = np.asarray(dataset.data)
     Y = np.asarray(dataset.target)
     X = np.c_[np.ones(X.shape[0]), X]
-    print(X)
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
-    X_train, X_test, Y_train, vY_test = train_test_split(X, Y, test_size=args.test_size / X.shape[0],
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=args.test_size / X.shape[0],
                                                         random_state=args.seed)
 
     # TODO: Solve the linear regression using the algorithm from the lecture,
@@ -43,7 +41,7 @@ def main(args):
     predicted_Y = np.dot(X_test, theta)
 
     # TODO: Compute root mean square error on the test set predictions
-    rmse = None
+    rmse = np.math.sqrt(np.dot((np.subtract(predicted_Y, Y_test)).T, (np.subtract(predicted_Y, Y_test))) / Y_test.shape[0])
 
     return rmse
 
