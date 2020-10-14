@@ -6,6 +6,7 @@ import sklearn.datasets
 import sklearn.linear_model
 import sklearn.metrics
 import sklearn.model_selection
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
@@ -60,10 +61,14 @@ def main(args):
         weights = weights - args.learning_rate * avg_grad
 
         # TODO: Append current RMSE on train/test to train_rmses/test_rmses.
+        train_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(train_target, train_data @ weights)))
+        test_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(test_target, test_data @ weights)))
 
     # TODO: Compute into `explicit_rmse` test data RMSE when
     # fitting `sklearn.linear_model.LinearRegression` on train_data.
-    explicit_rmse = None
+    reg = LinearRegression()
+    reg.fit(train_data, train_target)
+    explicit_rmse = np.sqrt(sklearn.metrics.mean_squared_error(reg.predict(test_data), test_target))
 
     if args.plot:
         import matplotlib.pyplot as plt
