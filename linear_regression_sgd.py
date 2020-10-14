@@ -6,6 +6,7 @@ import sklearn.datasets
 import sklearn.linear_model
 import sklearn.metrics
 import sklearn.model_selection
+from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
@@ -28,11 +29,13 @@ def main(args):
 
     # TODO: Append a constant feature with value 1 to the end of every input data
     data = np.c_[data, np.ones(data.shape[0])]
+    rmses = []                                                                          #'ADDITIONALLLLLLLL'
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
-    train_data, test_data, train_target, test_target = None, None, None, None
+    train_data, test_data, train_target, test_target = train_test_split(data, target, test_size=args.test_size,
+                                                        random_state=args.seed)
 
     # Generate initial linear regression weights
     weights = generator.uniform(size=train_data.shape[1])
