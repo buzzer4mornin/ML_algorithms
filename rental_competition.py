@@ -4,6 +4,7 @@ import lzma
 import os
 import pickle
 import urllib.request
+import pandas as pd
 
 import numpy as np
 
@@ -29,11 +30,16 @@ parser.add_argument("--seed", default=42, type=int, help="Random seed")
 # For these and any other arguments you add, ReCodEx will keep your default value.
 parser.add_argument("--model_path", default="rental_competition.model", type=str, help="Model path")
 
+
+
 def main(args):
     if args.predict is None:
         # We are training a model.
         np.random.seed(args.seed)
         train = Dataset()
+        X = train.data
+        y = train.target
+
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
@@ -53,8 +59,6 @@ def main(args):
         predictions = None
 
         return predictions
-
-
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     main(args)
