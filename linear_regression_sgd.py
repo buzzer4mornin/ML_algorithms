@@ -29,7 +29,7 @@ def main(args):
 
     # TODO: Append a constant feature with value 1 to the end of every input data
     data = np.c_[data, np.ones(data.shape[0])]
-    rmses = []                                                                          #'ADDITIONALLLLLLLL'
+
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
@@ -49,6 +49,15 @@ def main(args):
         # A gradient for example (x_i, t_i) is `(x_i^T weights - t_i) * x_i`,
         # and the SGD update is `weights = weights - args.learning_rate * gradient`.
         # You can assume that `args.batch_size` exactly divides `train_data.shape[0]`.
+        avg_grad = np.zeros(101)
+        for k in range(args.batch_size):
+            ind = permutation[k]
+            x_i = train_data[ind]
+            t_i = train_target[ind]
+            grad = (np.dot(x_i.T, weights) - t_i) * x_i
+            avg_grad = avg_grad + grad
+        avg_grad = avg_grad / args.batch_size
+        weights = weights - args.learning_rate * avg_grad
 
         # TODO: Append current RMSE on train/test to train_rmses/test_rmses.
 
