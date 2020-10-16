@@ -10,8 +10,9 @@ import seaborn as sn
 
 import numpy as np
 import sklearn
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.model_selection import train_test_split, KFold
+from sklearn.preprocessing import OrdinalEncoder, PolynomialFeatures
 
 
 class Dataset:
@@ -58,13 +59,13 @@ def main(args):
         The dataset instances consist of the following 12 features:
         - [0] season (1: winter, 2: sprint, 3: summer, 4: autumn)                                  DROP
         - [1] year (0: 2011, 1: 2012)                                                              [LEAVE-AS]
-        - [2] month (1-12)                                                                         [leave]          normalize                                                                         
-        - [3] hour (0-23)                                                                          [ordinal]        normalize
+        - [2] month (1-12)                                                                         [leave]          -normalize                                                                         
+        - [3] hour (0-23)                                                                          [ordinal]        -normalize
         - [4] holiday (binary indicator)                                                           [LEAVE-AS]           
-        - [5] day of week (0: Sun, 1: Mon, ..., 6: Sat)                                            [ordinal]        normalize
+        - [5] day of week (0: Sun, 1: Mon, ..., 6: Sat)                                            [ordinal]        -normalize
         - [6] working day (binary indicator; a day is neither weekend nor holiday)                 [LEAVE-AS]
-        - [7] weather (1: clear, 2: mist, 3: light rain, 4: heavy rain)                            [leave]          normalize
-        - [8] temperature (normalized so that -8 Celsius is 0 and 39 Celsius is 1)                 [LEAVE-AS]       normalize
+        - [7] weather (1: clear, 2: mist, 3: light rain, 4: heavy rain)                            [leave]          -normalize
+        - [8] temperature (normalized so that -8 Celsius is 0 and 39 Celsius is 1)                 [LEAVE-AS]
         - [9] feeling temperature (normalized so that -16 Celsius is 0 and 50 Celsius is 1)        DROP
         - [10] relative humidity (0-1 range)                                                       [LEAVE-AS]
         - [11] windspeed (normalized to 0-1 range)                                                 [LEAVE-AS]
@@ -84,11 +85,56 @@ def main(args):
         # Drop 'feel_temp' column -- because Temperature is highly correlated with Feeling Temperature (~0.99)
         X = X.drop(['feel_temp'], axis=1)
 
+        # OrdinalEncode 'hour' column. Transfrom from (0,23) interval into (1,24). Reason: get rid of multiplication with 0
+        X.loc[:, 'hour'] += 1
+
+        # Same as above, OrdinalEncode 'day_week' column.
+        X.loc[:, 'day_week'] += 1
+
+
+        # Polynomial Feature
+        '''poly = PolynomialFeatures(3, include_bias=False)
+        start_col = X.shape[1]
+        X = pd.DataFrame(poly.fit_transform(X))
+        X = X.iloc[:, start_col:]'''
+
+
+        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.25,
+                                                            random_state=args.seed)
+
+        clf = Ridge(alpha=100, tol=0.001, solver='auto')
+        clf.fit(X_train, Y_train)
+        predicted_Y = clf.predict(X_test)
+        training_error = clf.predict(X_train)
+        rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
+        print(rmse)
+        # ======================================== Ridge Regression ===================================================
+
+        '''X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.25,
+                                                            random_state=args.seed)
+
+        best_rmse = 999
+        lambdas = []
+        rmses = []
+        for i in np.linspace(0, 100, 1001):
+            lambdas.append(round(i, 2))
+            clf = Ridge(alpha=round(i, 2), tol=0.001, solver='auto')
+            clf.fit(X_train, Y_train)
+            predicted_Y = clf.predict(X_test)
+            training_error = clf.predict(X_train)
+            rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
+            rmses.append(rmse)
+            if rmse < best_rmse:
+                best_lambda = round(i, 2)
+                best_rmse = rmse
+
+        print("Best lambda:", best_lambda, "\nBest rmse:", best_rmse)'''
 
 
 
+        # =================================== K-fold Cross validation ==================================================
         # Prepare K-fold cross validation and find average RMSE
-        X = np.asarray(X)
+        '''X = np.asarray(X)
         y = np.asarray(y)
         kf = KFold(n_splits=10, shuffle=True, random_state=42)
         all_pairs = kf.split(X)
@@ -105,7 +151,7 @@ def main(args):
             explicit_rmse += np.sqrt(sklearn.metrics.mean_squared_error(reg.predict(test_data), test_target))
 
         avg_rmse = explicit_rmse/kf.n_splits
-        print(avg_rmse)
+        print(avg_rmse)'''
 
 
 
