@@ -19,6 +19,12 @@ parser.add_argument("--test_size", default=0.5, type=lambda x:int(x) if x.isdigi
 
 def main(args):
     dataset = getattr(sklearn.datasets, "load_{}".format(args.dataset))()
+    train_data, test_data = [0,0]
+
+    #X = pd.DataFrame(dataset.data, columns=["CRIM", "ZN", "INDUS", "CHAS", "NOX", "RM", "AGE", "DIS", "RAD", "TAX", "PTRATIO", "B", "LSTAT"])
+    #Y = pd.DataFrame(dataset.target, columns= ["MEDV"])
+    X = dataset.data
+    Y = dataset.target
 
 
     # TODO: Split the dataset into a train set and a test set.
@@ -63,6 +69,6 @@ def main(args):
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     train_data, test_data = main(args)
-    for dataset in [train_data, test_data]:
+    '''for dataset in [train_data, test_data]:
         for line in range(min(dataset.shape[0], 5)):
-            print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))
+            print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))'''
