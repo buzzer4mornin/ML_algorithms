@@ -12,7 +12,7 @@ import numpy as np
 import sklearn
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.model_selection import train_test_split, KFold
-from sklearn.preprocessing import OrdinalEncoder, PolynomialFeatures, Normalizer
+from sklearn.preprocessing import OrdinalEncoder, PolynomialFeatures, Normalizer, OneHotEncoder
 
 
 class Dataset:
@@ -94,20 +94,34 @@ def main(args):
         # Normalize columns [Doesnt Help]
         #X.loc[:, 'month'] = X.loc[:, 'month'] / pd.unique(X.loc[:, 'month']).shape[0]
 
-
-
+        # best rmse_ 61.26
+        #One_Hot_Encode
+        myencoder = OneHotEncoder(sparse=False, categories="auto")
+        month = X.loc[:, ['month']]
+        hour = X.loc[:, ['hour']]
+        day_week = X.loc[:, ['day_week']]
+        weather = X.loc[:, ['weather']]
+        del X['month']
+        del X['hour']
+        del X['day_week']
+        del X['weather']
+        month = myencoder.fit_transform(month)
+        hour = myencoder.fit_transform(hour)
+        day_week = myencoder.fit_transform(day_week)
+        weather = myencoder.fit_transform(weather)
+        X = pd.DataFrame(np.c_[month, hour, day_week, weather, X])
 
         # Polynomial Feature
-        '''poly = PolynomialFeatures(3, include_bias=False)
+        poly = PolynomialFeatures(3, include_bias=False)
         start_col = X.shape[1]
         X = pd.DataFrame(poly.fit_transform(X))
-        X = X.iloc[:, start_col:]'''
+        X = X.iloc[:, start_col:]
 
 
-        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.25,
-                                                            random_state=args.seed)
-
-        clf = Ridge(alpha=100, tol=0.001, solver='auto')
+        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
+                                                            random_state=args.seed, shuffle=True)
+        # best_alfa = 14.34
+        clf = Ridge(alpha=14.34, tol=0.001, solver='auto')
         clf.fit(X_train, Y_train)
         predicted_Y = clf.predict(X_test)
         training_error = clf.predict(X_train)
@@ -115,13 +129,13 @@ def main(args):
         print(rmse)
         # ======================================== Ridge Regression ===================================================
 
-        '''X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.25,
-                                                            random_state=args.seed)
+        '''X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
+                                                            random_state=args.seed, shuffle=True)
         
         best_rmse = 999
         lambdas = []
         rmses = []
-        for i in np.linspace(0, 100, 1001):
+        for i in np.linspace(0, 20, 100):
             lambdas.append(round(i, 2))
             clf = Ridge(alpha=round(i, 2), tol=0.001, solver='auto')
             clf.fit(X_train, Y_train)
@@ -134,8 +148,6 @@ def main(args):
                 best_rmse = rmse
 
         print("Best lambda:", best_lambda, "\nBest rmse:", best_rmse)'''
-
-
 
         # =================================== K-fold Cross validation ==================================================
         # Prepare K-fold cross validation and find average RMSE
@@ -157,11 +169,6 @@ def main(args):
 
         avg_rmse = explicit_rmse/kf.n_splits
         print(avg_rmse)'''
-
-
-
-
-
 
 
 
