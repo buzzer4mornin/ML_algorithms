@@ -17,18 +17,18 @@ from sklearn.model_selection import train_test_split, KFold
 class Dataset:
     """Rental Dataset.
     The dataset instances consist of the following 12 features:
-    - [1] season (1: winter, 2: sprint, 3: summer, 4: autumn)                                  [ONE-HOT-ENCODE]
-    - [2] year (0: 2011, 1: 2012)                                                              [LEAVE-AS]
-    - [3] month (1-12)                                                                         [ONE-HOT-ENCODE]
-    - [4] hour (0-23)                                                                          [LEAVE-AS]
-    - [5] holiday (binary indicator)                                                           [LEAVE-AS]
-    - [6] day of week (0: Sun, 1: Mon, ..., 6: Sat)
-    - [7] working day (binary indicator; a day is neither weekend nor holiday)                 [LEAVE-AS]
-    - [8] weather (1: clear, 2: mist, 3: light rain, 4: heavy rain)
-    - [9] temperature (normalized so that -8 Celsius is 0 and 39 Celsius is 1)
-    - [10] feeling temperature (normalized so that -16 Celsius is 0 and 50 Celsius is 1)
-    - [11] relative humidity (0-1 range)
-    - [12] windspeed (normalized to 0-1 range)
+    - [0] season (1: winter, 2: sprint, 3: summer, 4: autumn)                                  [ONE-HOT-ENCODE]
+    - [1] year (0: 2011, 1: 2012)                                                              [LEAVE-AS]
+    - [2] month (1-12)                                                                         [ONE-HOT-ENCODE]
+    - [3] hour (0-23)                                                                          [LEAVE-AS]
+    - [4] holiday (binary indicator)                                                           [LEAVE-AS]
+    - [5] day of week (0: Sun, 1: Mon, ..., 6: Sat)
+    - [6] working day (binary indicator; a day is neither weekend nor holiday)                 [LEAVE-AS]
+    - [7] weather (1: clear, 2: mist, 3: light rain, 4: heavy rain)
+    - [8] temperature (normalized so that -8 Celsius is 0 and 39 Celsius is 1)
+    - [9] feeling temperature (normalized so that -16 Celsius is 0 and 50 Celsius is 1)
+    - [10] relative humidity (0-1 range)
+    - [11] windspeed (normalized to 0-1 range)
     The target variable is the number of rentals in the given hour.
     """
     def __init__(self,
@@ -66,6 +66,11 @@ def main(args):
         X = pd.DataFrame(X)
         y = pd.DataFrame(y)
 
+        col_names = ['season', 'year', 'month', 'hour', 'holiday', 'day_week', 'work_day',
+                     'weather', 'temp', 'feel_temp', 'humidity', 'windspeed']
+        X.columns = col_names
+
+        # ==================================================================================================
         'Explanatory Data Analysis'
         #print(X.head()) # 9 integer features, 3 real features
 
@@ -90,15 +95,27 @@ def main(args):
         #sn.heatmap(corrMatrix, annot=True)
         #plt.show()
 
+        #==================================================================================================
+
         ''' Notes from HEATMAP
-        [9] and [10] have 0.99 correlation, remove one of them. They are both Celcius Temperature column 
-        [9],[10] and [1] have 0.35 correlation, because Temperatures are correlated with Seasons
-        [1] and [3] have 0.83 correlation, Seasons are correlated with Months 
+        [8] and [9] have 0.99 correlation, remove one of them. They are both Celcius Temperature column 
+        [8],[9] and [0] have 0.35 correlation, because Temperatures are correlated with Seasons
+        [0] and [2] have 0.83 correlation, Seasons are correlated with Months 
         '''
 
+        # Drop 'season' column -- because Seasons are highly correlated with Months (~0.83).
+        # Seasons are also correlated with Temperatures [8],[9] (~0.35)
+        X = X.drop(['season'], axis=1)
+
+        # Drop 'feel_temp' column -- because Temperature is highly correlated with Feeling Temperature (~0.99)
+        X = X.drop(['feel_temp'], axis=1)
+
+
+
+
+        # Prepare K-fold cross validation and find average RMSE
         X = np.asarray(X)
         y = np.asarray(y)
-
         kf = KFold(n_splits=10, shuffle=True, random_state=42)
         all_pairs = kf.split(X)
 
