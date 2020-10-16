@@ -30,7 +30,8 @@ def main(args):
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
-
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=args.test_size,
+                                                        random_state=args.seed)
 
     # TODO: Process the input columns in the following way:
     #
