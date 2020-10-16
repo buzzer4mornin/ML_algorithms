@@ -94,7 +94,7 @@ def main(args):
         # Normalize columns [Doesnt Help]
         #X.loc[:, 'month'] = X.loc[:, 'month'] / pd.unique(X.loc[:, 'month']).shape[0]
 
-        # best rmse_ 61.26
+
         #One_Hot_Encode
         myencoder = OneHotEncoder(sparse=False, categories="auto")
         month = X.loc[:, ['month']]
@@ -109,7 +109,7 @@ def main(args):
         hour = myencoder.fit_transform(hour)
         day_week = myencoder.fit_transform(day_week)
         weather = myencoder.fit_transform(weather)
-        X = pd.DataFrame(np.c_[month, hour, day_week, weather, X])
+        X = pd.DataFrame(np.c_[month, hour, day_week, weather, X]) #if remove 'day_week', best_rmse = 57.8
 
         # Polynomial Feature
         poly = PolynomialFeatures(3, include_bias=False)
@@ -121,11 +121,10 @@ def main(args):
         X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
         # best_alfa = 0.2
-        # best rmse = 58.85
+        # best rmse = 58.66
         clf = Lasso(alpha=0.2, tol=0.001)
         clf.fit(X_train, Y_train)
         predicted_Y = clf.predict(X_test)
-        training_error = clf.predict(X_train)
         rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
         print(rmse)
 
@@ -176,8 +175,8 @@ def main(args):
         print("Best lambda:", best_lambda, "\nBest rmse:", best_rmse)'''
 
         # =================================== K-fold Cross validation ==================================================
-        # Prepare K-fold cross validation and find average RMSE
-        '''X = np.asarray(X)
+        '''# Prepare K-fold cross validation and find average RMSE
+        X = np.asarray(X)
         y = np.asarray(y)
         kf = KFold(n_splits=10, shuffle=True, random_state=42)
         all_pairs = kf.split(X)
@@ -195,7 +194,6 @@ def main(args):
 
         avg_rmse = explicit_rmse/kf.n_splits
         print(avg_rmse)'''
-
 
 
 
