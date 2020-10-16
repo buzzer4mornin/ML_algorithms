@@ -15,22 +15,7 @@ from sklearn.model_selection import train_test_split, KFold
 
 
 class Dataset:
-    """Rental Dataset.
-    The dataset instances consist of the following 12 features:
-    - [0] season (1: winter, 2: sprint, 3: summer, 4: autumn)                                  [ONE-HOT-ENCODE]
-    - [1] year (0: 2011, 1: 2012)                                                              [LEAVE-AS]
-    - [2] month (1-12)                                                                         [ONE-HOT-ENCODE]
-    - [3] hour (0-23)                                                                          [LEAVE-AS]
-    - [4] holiday (binary indicator)                                                           [LEAVE-AS]
-    - [5] day of week (0: Sun, 1: Mon, ..., 6: Sat)
-    - [6] working day (binary indicator; a day is neither weekend nor holiday)                 [LEAVE-AS]
-    - [7] weather (1: clear, 2: mist, 3: light rain, 4: heavy rain)
-    - [8] temperature (normalized so that -8 Celsius is 0 and 39 Celsius is 1)
-    - [9] feeling temperature (normalized so that -16 Celsius is 0 and 50 Celsius is 1)
-    - [10] relative humidity (0-1 range)
-    - [11] windspeed (normalized to 0-1 range)
-    The target variable is the number of rentals in the given hour.
-    """
+
     def __init__(self,
                  name="rental_competition.train.npz",
                  url="https://ufal.mff.cuni.cz/~straka/courses/npfl129/2021/datasets/"):
@@ -69,34 +54,23 @@ def main(args):
         col_names = ['season', 'year', 'month', 'hour', 'holiday', 'day_week', 'work_day',
                      'weather', 'temp', 'feel_temp', 'humidity', 'windspeed']
         X.columns = col_names
-
+        """Rental Dataset.
+        The dataset instances consist of the following 12 features:
+        - [0] season (1: winter, 2: sprint, 3: summer, 4: autumn)                                  DROP
+        - [1] year (0: 2011, 1: 2012)                                                              [LEAVE-AS]
+        - [2] month (1-12)                                                                         [leave]          normalize                                                                         
+        - [3] hour (0-23)                                                                          [ordinal]        normalize
+        - [4] holiday (binary indicator)                                                           [LEAVE-AS]           
+        - [5] day of week (0: Sun, 1: Mon, ..., 6: Sat)                                            [ordinal]        normalize
+        - [6] working day (binary indicator; a day is neither weekend nor holiday)                 [LEAVE-AS]
+        - [7] weather (1: clear, 2: mist, 3: light rain, 4: heavy rain)                            [leave]          normalize
+        - [8] temperature (normalized so that -8 Celsius is 0 and 39 Celsius is 1)                 [LEAVE-AS]       normalize
+        - [9] feeling temperature (normalized so that -16 Celsius is 0 and 50 Celsius is 1)        DROP
+        - [10] relative humidity (0-1 range)                                                       [LEAVE-AS]
+        - [11] windspeed (normalized to 0-1 range)                                                 [LEAVE-AS]
+        The target variable is the number of rentals in the given hour.
+        """
         # ==================================================================================================
-        'Explanatory Data Analysis'
-        #print(X.head()) # 9 integer features, 3 real features
-
-        #print(X.info()) # No NULL values.
-
-        #X = X.iloc[:,0:5]
-        #print(X.describe())
-
-        #X.iloc[:, 5].hist(bins=50, figsize=(15, 5))
-        #plt.show()
-
-        #print(X.iloc[:,3].value_counts())
-
-        #X.corrwith(y).plot(kind='barh', figsize=[20, 10], legend=True, grid=True)
-        #plt.show()
-
-
-        #df = pd.DataFrame(np.c_[X,y])
-        #print(df.iloc[:,12])
-        #corrMatrix = df.corr()
-        #print(corrMatrix)
-        #sn.heatmap(corrMatrix, annot=True)
-        #plt.show()
-
-        #==================================================================================================
-
         ''' Notes from HEATMAP
         [8] and [9] have 0.99 correlation, remove one of them. They are both Celcius Temperature column 
         [8],[9] and [0] have 0.35 correlation, because Temperatures are correlated with Seasons
@@ -135,6 +109,43 @@ def main(args):
 
 
 
+
+
+
+
+
+
+
+
+
+        # ==================================================================================================
+        'Explanatory Data Analysis'
+        #print(X.head()) # 9 integer features, 3 real features
+
+        #print(X.info()) # No NULL values.
+
+        #X = X.iloc[:,0:5]
+        #print(X.describe())
+
+        #X.iloc[:, 5].hist(bins=50, figsize=(15, 5))
+        #plt.show()
+
+        #print(X.iloc[:,3].value_counts())
+
+        #X.corrwith(y).plot(kind='barh', figsize=[20, 10], legend=True, grid=True)
+        #plt.show()
+
+
+        X = train.data
+        y = train.target
+        df = pd.DataFrame(np.c_[X,y])
+        #print(df.iloc[:,10])
+        corrMatrix = df.corr()
+        #print(corrMatrix)
+        #sn.heatmap(corrMatrix, annot=True)
+        #plt.show()
+
+        #==================================================================================================
         '''train_data, test_data, train_target, test_target = train_test_split(X, y, test_size=0.25,
                                                                             random_state=args.seed)
         reg = LinearRegression()
