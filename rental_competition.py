@@ -10,7 +10,7 @@ import seaborn as sn
 
 import numpy as np
 import sklearn
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import OrdinalEncoder, PolynomialFeatures, Normalizer, OneHotEncoder
 
@@ -120,16 +120,20 @@ def main(args):
 
         X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
-        # best_alfa = 14.34
-        clf = Ridge(alpha=14.34, tol=0.001, solver='auto')
+        # best_alfa = 0.2
+        # best rmse = 58.85
+        clf = Lasso(alpha=0.2, tol=0.001)
         clf.fit(X_train, Y_train)
         predicted_Y = clf.predict(X_test)
         training_error = clf.predict(X_train)
         rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
         print(rmse)
+
+
         # ======================================== Ridge Regression ===================================================
 
-        '''X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
+        '''# best_alfa = 14.34
+        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
         
         best_rmse = 999
@@ -138,6 +142,28 @@ def main(args):
         for i in np.linspace(0, 20, 100):
             lambdas.append(round(i, 2))
             clf = Ridge(alpha=round(i, 2), tol=0.001, solver='auto')
+            clf.fit(X_train, Y_train)
+            predicted_Y = clf.predict(X_test)
+            training_error = clf.predict(X_train)
+            rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
+            rmses.append(rmse)
+            if rmse < best_rmse:
+                best_lambda = round(i, 2)
+                best_rmse = rmse
+
+        print("Best lambda:", best_lambda, "\nBest rmse:", best_rmse)'''
+
+        # ======================================== Lasso Regression ===================================================
+
+        '''# best_alfa = 14.34
+        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.25,
+                                                            random_state=args.seed, shuffle=True)
+        best_rmse = 999
+        lambdas = []
+        rmses = []
+        for i in np.linspace(0, 10, 100):
+            lambdas.append(round(i, 2))
+            clf = Lasso(alpha=round(i, 2), tol=0.001, random_state=args.seed)
             clf.fit(X_train, Y_train)
             predicted_Y = clf.predict(X_test)
             training_error = clf.predict(X_train)
