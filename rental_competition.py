@@ -12,7 +12,7 @@ import numpy as np
 import sklearn
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.model_selection import train_test_split, KFold
-from sklearn.preprocessing import OrdinalEncoder, PolynomialFeatures
+from sklearn.preprocessing import OrdinalEncoder, PolynomialFeatures, Normalizer
 
 
 class Dataset:
@@ -91,6 +91,11 @@ def main(args):
         # Same as above, OrdinalEncode 'day_week' column.
         X.loc[:, 'day_week'] += 1
 
+        # Normalize columns [Doesnt Help]
+        #X.loc[:, 'month'] = X.loc[:, 'month'] / pd.unique(X.loc[:, 'month']).shape[0]
+
+
+
 
         # Polynomial Feature
         '''poly = PolynomialFeatures(3, include_bias=False)
@@ -112,7 +117,7 @@ def main(args):
 
         '''X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.25,
                                                             random_state=args.seed)
-
+        
         best_rmse = 999
         lambdas = []
         rmses = []
