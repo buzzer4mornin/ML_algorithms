@@ -195,11 +195,6 @@ def main(args):
         avg_rmse = explicit_rmse/kf.n_splits
         print(avg_rmse)'''
 
-
-
-
-
-
         # ==================================================================================================
         'Explanatory Data Analysis'
         #print(X.head()) # 9 integer features, 3 real features
@@ -228,12 +223,6 @@ def main(args):
         #plt.show()
 
         #==================================================================================================
-        '''train_data, test_data, train_target, test_target = train_test_split(X, y, test_size=0.25,
-                                                                            random_state=args.seed)
-        reg = LinearRegression()
-        reg.fit(train_data, train_target)
-        explicit_rmse = np.sqrt(sklearn.metrics.mean_squared_error(reg.predict(test_data), test_target))
-        print(explicit_rmse)'''
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
