@@ -11,19 +11,19 @@ import seaborn as sn
 import numpy as np
 import sklearn
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold
 
 
 class Dataset:
     """Rental Dataset.
     The dataset instances consist of the following 12 features:
-    - [1] season (1: winter, 2: sprint, 3: summer, 4: autumn)
-    - [2] year (0: 2011, 1: 2012)
-    - [3] month (1-12)
-    - [4] hour (0-23)
-    - [5] holiday (binary indicator)
+    - [1] season (1: winter, 2: sprint, 3: summer, 4: autumn)                                  [ONE-HOT-ENCODE]
+    - [2] year (0: 2011, 1: 2012)                                                              [LEAVE-AS]
+    - [3] month (1-12)                                                                         [ONE-HOT-ENCODE]
+    - [4] hour (0-23)                                                                          [LEAVE-AS]
+    - [5] holiday (binary indicator)                                                           [LEAVE-AS]
     - [6] day of week (0: Sun, 1: Mon, ..., 6: Sat)
-    - [7] working day (binary indicator; a day is neither weekend nor holiday)
+    - [7] working day (binary indicator; a day is neither weekend nor holiday)                 [LEAVE-AS]
     - [8] weather (1: clear, 2: mist, 3: light rain, 4: heavy rain)
     - [9] temperature (normalized so that -8 Celsius is 0 and 39 Celsius is 1)
     - [10] feeling temperature (normalized so that -16 Celsius is 0 and 50 Celsius is 1)
@@ -83,16 +83,42 @@ def main(args):
         #plt.show()
 
 
-        df = pd.DataFrame(np.c_[X,y])
+        #df = pd.DataFrame(np.c_[X,y])
         #print(df.iloc[:,12])
-        corrMatrix = df.corr()
+        #corrMatrix = df.corr()
         #print(corrMatrix)
-        sn.heatmap(corrMatrix, annot=True)
-        plt.show()
+        #sn.heatmap(corrMatrix, annot=True)
+        #plt.show()
+
+        ''' Notes from HEATMAP
+        [9] and [10] have 0.99 correlation, remove one of them. They are both Celcius Temperature column 
+        [9],[10] and [1] have 0.35 correlation, because Temperatures are correlated with Seasons
+        [1] and [3] have 0.83 correlation, Seasons are correlated with Months 
+        '''
+
+        X = np.asarray(X)
+        y = np.asarray(y)
+
+        kf = KFold(n_splits=10, shuffle=True, random_state=42)
+        all_pairs = kf.split(X)
+
+        explicit_rmse = 0
+        for train_indices, test_indices in all_pairs:
+            train_data = X[train_indices]
+            test_data = X[test_indices]
+            train_target = y[train_indices]
+            test_target = y[test_indices]
+
+            reg = LinearRegression()
+            reg.fit(train_data, train_target)
+            explicit_rmse += np.sqrt(sklearn.metrics.mean_squared_error(reg.predict(test_data), test_target))
+
+        avg_rmse = explicit_rmse/kf.n_splits
+        print(avg_rmse)
 
 
 
-        '''train_data, test_data, train_target, test_target = train_test_split(X, y, test_size=0.2,
+        '''train_data, test_data, train_target, test_target = train_test_split(X, y, test_size=0.25,
                                                                             random_state=args.seed)
         reg = LinearRegression()
         reg.fit(train_data, train_target)
