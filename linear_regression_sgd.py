@@ -69,6 +69,7 @@ def main(args):
         train_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(train_target, train_data @ weights)))
         test_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(test_target, test_data @ weights)))
 
+
     # TODO: Compute into `explicit_rmse` test data RMSE when
     # fitting `sklearn.linear_model.LinearRegression` on train_data.
     reg = LinearRegression()
