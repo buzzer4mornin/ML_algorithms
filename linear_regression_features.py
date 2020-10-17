@@ -22,8 +22,7 @@ def main(args):
     print(xs)
     rmses = []
     for order in range(1, args.range + 1):
-        # TODO: Create features of x^1, ..., x^order.
-
+        # TODO: Create features of x^1, ..., x^order
 
         # TODO: Split the data into a train set and a test set.
         # Use `sklearn.model_selection.train_test_split` method call, passing
