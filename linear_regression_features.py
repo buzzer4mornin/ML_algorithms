@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
-import argparse
 
+# Team:
+# 2f67b427-a885-11e7-a937-00505601122b
+# b030d249-e9cb-11e9-9ce9-00505601122b
+# 3351ff04-3f62-11e9-b0fd-00505601122b
+
+import argparse
 import numpy as np
 import sklearn.linear_model
 import sklearn.metrics
@@ -22,8 +27,7 @@ def main(args):
     print(xs)
     rmses = []
     for order in range(1, args.range + 1):
-        # TODO: Create features of x^1, ..., x^order.
-
+        # TODO: Create features of x^1, ..., x^order
 
         # TODO: Split the data into a train set and a test set.
         # Use `sklearn.model_selection.train_test_split` method call, passing
