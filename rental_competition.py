@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Team:
+# 2f67b427-a885-11e7-a937-00505601122b
+# b030d249-e9cb-11e9-9ce9-00505601122b
+# 3351ff04-3f62-11e9-b0fd-00505601122b
+
 import argparse
 import lzma
 import os
@@ -7,7 +13,6 @@ import urllib.request
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sn
-
 import numpy as np
 import sklearn
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
