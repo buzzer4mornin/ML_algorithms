@@ -49,7 +49,7 @@ def main(args):
 
     # TODO: Compute root mean square error on the test set predictions
     rmse = np.math.sqrt(
-        np.dot(np.subtract(Y_predicted, Y_test), np.subtract(Y_predicted, Y_test)) / Y_test.shape[0])
+        np.dot(np.subtract(Y_predicted, Y_test).T, np.subtract(Y_predicted, Y_test)) / Y_test.shape[0])
 
     return rmse
 
