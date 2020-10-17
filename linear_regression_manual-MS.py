@@ -31,7 +31,7 @@ def main(args):
     # print(dataset.DESCR)
 
     # TODO: Append a new feature to all input data, with value "1"
-    X += np.ones(X.shape)
+    X = np.append(X, np.ones([X.shape[0], 1]), axis=1)
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
