@@ -24,8 +24,6 @@ def main(args):
     ys = np.sin(xs) + np.random.RandomState(args.seed).normal(0, 0.2, size=args.data_size)
     xs = xs.reshape(-1, 1)
     xs_copy = xs
-    #print(xs.shape)
-    #print(ys.shape)
 
     rmses = []
     for order in range(1, args.range + 1):
@@ -34,9 +32,6 @@ def main(args):
             add = xs_copy**order
             xs = np.c_[xs, add]
 
-
-        #print(xs.shape)
-        xs = np.asarray(xs)
         # TODO: Split the data into a train set and a test set.
         # Use `sklearn.model_selection.train_test_split` method call, passing
         # arguments `test_size=args.test_size, random_state=args.seed`.
