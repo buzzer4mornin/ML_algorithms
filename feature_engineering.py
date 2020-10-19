@@ -77,13 +77,16 @@ def main(args):
     # fit Encoder to separate columns
     encoded_cols = [np.c_[myencoder.fit_transform(np.array(X_train.loc[:, i]).reshape(-1, 1))] for i in categ_colnames]
     encoded_cols = np.c_[encoded_cols[0], encoded_cols[1], encoded_cols[2]]
+    'change above to automatic rather than manual'
 
     # drop Encoded columns
     X_train.drop(['CHAS', 'RAD', 'TAX'], axis=1)
 
+    # normalize necessary columns
     normalizer = StandardScaler()
     X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
 
+    # merge encoded vs original columns
     X_train = pd.DataFrame(np.c_[encoded_cols, X_train])
 
     print(X_train.shape)
