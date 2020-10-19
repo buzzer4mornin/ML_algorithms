@@ -65,32 +65,27 @@ def main(args):
 
 
     categ_check = np.all(X.astype(int) == X, axis=0)
-    categ_true = [i for i, x in enumerate(categ_check) if x]
     categ_colnames = []
-
-    for i in categ_true:
-        categ_colnames.append(input_col[i])
+    [categ_colnames.append(input_col[i]) for i, x in enumerate(categ_check) if x]
 
     #print(categ_colnames)
     # ['CHAS', 'RAD', 'TAX'] columns are categorical. So, we will One-Hot-Encode them
 
+    # Initialize Encoder
     myencoder = OneHotEncoder(sparse=False, categories="auto")
 
-    chas = X_train.loc[:, ['CHAS']]
-    rad = X_train.loc[:, ['RAD']]
-    tax = X_train.loc[:, ['TAX']]
-    del X_train['CHAS']
-    del X_train['RAD']
-    del X_train['TAX']
-    #print(X_train.shape) 10 cols remaining
-    chas_1hot = myencoder.fit_transform(chas) # added 2
-    rad_1hot = myencoder.fit_transform(rad) # added 9
-    tax_1hot = myencoder.fit_transform(tax) # added 58
+    # fit Encoder to separate columns
+    chas_1hot = myencoder.fit_transform(np.array(X_train.iloc[:, 3]).reshape(-1, 1))  # added 2
+    rad_1hot = myencoder.fit_transform(np.array(X_train.iloc[:, 8]).reshape(-1, 1))  # added 9
+    tax_1hot = myencoder.fit_transform(np.array(X_train.iloc[:, 9]).reshape(-1, 1))  # added 58
+
+    # drop Encoded columns
+    X_train.drop(['CHAS', 'RAD', 'TAX'], axis=1)
 
     normalizer = StandardScaler()
     X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
 
-    X_train = pd.DataFrame(np.c_[chas_1hot, rad_1hot, tax_1hot, X_train]) #total 79 cols
+    X_train = pd.DataFrame(np.c_[chas_1hot, rad_1hot, tax_1hot, X_train])
 
 
 
@@ -123,5 +118,3 @@ if __name__ == "__main__":
     '''for dataset in [train_data, test_data]:
         for line in range(min(dataset.shape[0], 5)):
             print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))'''
-
-
