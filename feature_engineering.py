@@ -7,13 +7,14 @@
 
 import argparse
 import numpy as np
+import pandas as pd
 import sklearn.compose
 import sklearn.datasets
 import sklearn.model_selection
 import sklearn.pipeline
 import sklearn.preprocessing
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
@@ -31,7 +32,7 @@ def main(args):
     output_col = ["MEDV"]
     X = np.array(dataset.data)
     Y = np.array(dataset.target).reshape(-1, 1)
-
+    #print(pd.DataFrame(X).head())
 
 
     # TODO: Split the dataset into a train set and a test set.
@@ -39,7 +40,10 @@ def main(args):
     # arguments `test_size=args.test_size, random_state=args.seed`.
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=args.test_size,
                                                         random_state=args.seed)
-
+    X_train = pd.DataFrame(X_train, columns=input_col)
+    X_test = pd.DataFrame(X_test, columns=input_col)
+    Y_train = pd.DataFrame(Y_train, columns=output_col)
+    Y_train = pd.DataFrame(Y_test, columns=output_col)
 
     # TODO: Process the input columns in the following way:
     #
@@ -57,8 +61,36 @@ def main(args):
     # In the output, there should be first all the one-hot categorical features,
     # and then the real-valued features. To process different dataset columns
     # differently, you can use `sklearn.compose.ColumnTransformer`.
-    categ_bool = np.all(X.astype(int) == X, axis=0)
-    categ_cols = [i for i, x in enumerate(categ_bool) if x]
+
+
+    categ_check = np.all(X.astype(int) == X, axis=0)
+    categ_true = [i for i, x in enumerate(categ_check) if x]
+    categ_colnames = []
+
+    for i in categ_true:
+        categ_colnames.append(input_col[i])
+
+    #print(categ_colnames)
+    # ['CHAS', 'RAD', 'TAX'] columns are categorical. So, we will One-Hot-Encode them
+
+    myencoder = OneHotEncoder(sparse=False, categories="auto")
+
+    chas = X_train.loc[:, ['CHAS']]
+    rad = X_train.loc[:, ['RAD']]
+    tax = X_train.loc[:, ['TAX']]
+    del X_train['CHAS']
+    del X_train['RAD']
+    del X_train['TAX']
+    #print(X_train.shape) 10 cols remaining
+    chas_1hot = myencoder.fit_transform(rad) # added 9
+    rad_1hot = myencoder.fit_transform(rad) # added 9
+    tax_1hot = myencoder.fit_transform(tax) # added 58
+
+    normalizer = StandardScaler()
+    X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
+
+    X_train = pd.DataFrame(np.c_[chas_1hot, rad_1hot, tax_1hot, X_train])
+
 
 
     # TODO: Generate polynomial features of order 2 from the current features.
