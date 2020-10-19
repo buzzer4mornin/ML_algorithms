@@ -13,6 +13,7 @@ import sklearn.model_selection
 import sklearn.pipeline
 import sklearn.preprocessing
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
@@ -26,7 +27,8 @@ def main(args):
     dataset = getattr(sklearn.datasets, "load_{}".format(args.dataset))()
     train_data, test_data = [0,0]
 
-
+    input_col = ["CRIM", "ZN", "INDUS", "CHAS", "NOX", "RM", "AGE", "DIS", "RAD", "TAX", "PTRATIO", "B", "LSTAT"]
+    output_col = ["MEDV"]
     X = np.array(dataset.data)
     Y = np.array(dataset.target).reshape(-1, 1)
 
@@ -55,6 +57,9 @@ def main(args):
     # In the output, there should be first all the one-hot categorical features,
     # and then the real-valued features. To process different dataset columns
     # differently, you can use `sklearn.compose.ColumnTransformer`.
+    categ_bool = np.all(X.astype(int) == X, axis=0)
+    categ_cols = [i for i, x in enumerate(categ_bool) if x]
+
 
     # TODO: Generate polynomial features of order 2 from the current features.
     # If the input values are [a, b, c, d], you should generate
