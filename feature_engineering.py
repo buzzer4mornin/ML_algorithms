@@ -75,9 +75,8 @@ def main(args):
     myencoder = OneHotEncoder(sparse=False, categories="auto")
 
     # fit Encoder to separate columns
-    chas_1hot = myencoder.fit_transform(np.array(X_train.iloc[:, 3]).reshape(-1, 1))  # added 2
-    rad_1hot = myencoder.fit_transform(np.array(X_train.iloc[:, 8]).reshape(-1, 1))  # added 9
-    tax_1hot = myencoder.fit_transform(np.array(X_train.iloc[:, 9]).reshape(-1, 1))  # added 58
+    encoded_cols = [np.c_[myencoder.fit_transform(np.array(X_train.loc[:, i]).reshape(-1, 1))] for i in categ_colnames]
+    encoded_cols = np.c_[encoded_cols[0], encoded_cols[1], encoded_cols[2]]
 
     # drop Encoded columns
     X_train.drop(['CHAS', 'RAD', 'TAX'], axis=1)
@@ -85,8 +84,9 @@ def main(args):
     normalizer = StandardScaler()
     X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
 
-    X_train = pd.DataFrame(np.c_[chas_1hot, rad_1hot, tax_1hot, X_train])
+    X_train = pd.DataFrame(np.c_[encoded_cols, X_train])
 
+    print(X_train.shape)
 
 
 
