@@ -14,7 +14,8 @@ import sklearn.model_selection
 import sklearn.pipeline
 import sklearn.preprocessing
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, PolynomialFeatures
+from sklearn.pipeline import Pipeline
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
@@ -82,14 +83,15 @@ def main(args):
     del X_train['RAD']
     del X_train['TAX']
     #print(X_train.shape) 10 cols remaining
-    chas_1hot = myencoder.fit_transform(rad) # added 9
+    chas_1hot = myencoder.fit_transform(chas) # added 2
     rad_1hot = myencoder.fit_transform(rad) # added 9
     tax_1hot = myencoder.fit_transform(tax) # added 58
 
     normalizer = StandardScaler()
     X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
 
-    X_train = pd.DataFrame(np.c_[chas_1hot, rad_1hot, tax_1hot, X_train]) #total 86 cols
+    X_train = pd.DataFrame(np.c_[chas_1hot, rad_1hot, tax_1hot, X_train]) #total 79 cols
+
 
 
 
@@ -98,6 +100,11 @@ def main(args):
     # [a^2, ab, ac, ad, b^2, bc, bd, c^2, cd, d^2]. You can generate such polynomial
     # features either manually, or using
     # `sklearn.preprocessing.PolynomialFeatures(2, include_bias=False)`.
+    poly = PolynomialFeatures(2, include_bias=False)
+    start_col = X_train.shape[1]
+    X_train = pd.DataFrame(poly.fit_transform(X_train))
+    X_train = X_train.iloc[:, start_col:]
+
 
     # TODO: You can wrap all the feature processing steps into one transformer
     # by using `sklearn.pipeline.Pipeline`. Although not strictly needed, it is
@@ -116,3 +123,5 @@ if __name__ == "__main__":
     '''for dataset in [train_data, test_data]:
         for line in range(min(dataset.shape[0], 5)):
             print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))'''
+
+
