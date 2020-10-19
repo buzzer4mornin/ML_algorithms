@@ -89,7 +89,7 @@ def main(args):
     normalizer = StandardScaler()
     X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
 
-    X_train = pd.DataFrame(np.c_[chas_1hot, rad_1hot, tax_1hot, X_train])
+    X_train = pd.DataFrame(np.c_[chas_1hot, rad_1hot, tax_1hot, X_train]) #total 86 cols
 
 
 
