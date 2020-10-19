@@ -26,10 +26,10 @@ def main(args):
     dataset = getattr(sklearn.datasets, "load_{}".format(args.dataset))()
     train_data, test_data = [0,0]
 
-    #X = pd.DataFrame(dataset.data, columns=["CRIM", "ZN", "INDUS", "CHAS", "NOX", "RM", "AGE", "DIS", "RAD", "TAX", "PTRATIO", "B", "LSTAT"])
-    #Y = pd.DataFrame(dataset.target, columns= ["MEDV"])
-    X = dataset.data
-    Y = dataset.target
+
+    X = np.array(dataset.data)
+    Y = np.array(dataset.target).reshape(-1, 1)
+
 
 
     # TODO: Split the dataset into a train set and a test set.
@@ -37,6 +37,7 @@ def main(args):
     # arguments `test_size=args.test_size, random_state=args.seed`.
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=args.test_size,
                                                         random_state=args.seed)
+
 
     # TODO: Process the input columns in the following way:
     #
