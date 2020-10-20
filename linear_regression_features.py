@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
-parser.add_argument("--data_size", default=40, type=int, help="Data size")
+parser.add_argument("--data_size", default=10, type=int, help="Data size")
 parser.add_argument("--range", default=3, type=int, help="Feature order range")
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")

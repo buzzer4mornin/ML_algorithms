@@ -65,8 +65,7 @@ def main(args):
 
 
     categ_check = np.all(X.astype(int) == X, axis=0)
-    categ_colnames = []
-    [categ_colnames.append(input_col[i]) for i, x in enumerate(categ_check) if x]
+    categ_colnames = [input_col[i] for i, x in enumerate(categ_check) if x]
 
     #print(categ_colnames)
     # ['CHAS', 'RAD', 'TAX'] columns are categorical. So, we will One-Hot-Encode them
@@ -76,11 +75,10 @@ def main(args):
 
     # fit Encoder to separate columns
     encoded_cols = [np.c_[myencoder.fit_transform(np.array(X_train.loc[:, i]).reshape(-1, 1))] for i in categ_colnames]
-    encoded_cols = np.c_[encoded_cols[0], encoded_cols[1], encoded_cols[2]]
-    'change above to automatic rather than manual'
+    encoded_cols = np.c_[tuple(encoded_cols)]
 
     # drop Encoded columns
-    X_train.drop(['CHAS', 'RAD', 'TAX'], axis=1)
+    X_train.drop(categ_colnames, axis=1)
 
     # normalize necessary columns
     normalizer = StandardScaler()
@@ -89,7 +87,6 @@ def main(args):
     # merge encoded vs original columns
     X_train = pd.DataFrame(np.c_[encoded_cols, X_train])
 
-    print(X_train.shape)
 
 
 
@@ -111,13 +108,17 @@ def main(args):
     # TODO: Fit the feature processing steps on the training data.
     # Then transform the training data into `train_data` (you can do both these
     # steps using `fit_transform`), and transform testing data to `test_data`.
-
+    X_train = np.asarray(X_train)
+    Y_train = np.asarray(Y_train)
+    train_data = X_train
+    test_data = Y_train
     return train_data, test_data
+
 
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     train_data, test_data = main(args)
-    '''for dataset in [train_data, test_data]:
+    for dataset in [train_data, test_data]:
         for line in range(min(dataset.shape[0], 5)):
-            print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))'''
+            print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))
