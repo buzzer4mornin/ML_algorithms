@@ -22,29 +22,28 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", default="boston", type=str, help="Standard sklearn dataset to load")
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")
-parser.add_argument("--test_size", default=0.5, type=lambda x:int(x) if x.isdigit() else float(x), help="Test set size")
+parser.add_argument("--test_size", default=0.5, type=lambda x: int(x) if x.isdigit() else float(x),
+                    help="Test set size")
+
+
 # If you add more arguments, ReCodEx will keep them with your default values.
 
 def main(args):
     dataset = getattr(sklearn.datasets, "load_{}".format(args.dataset))()
-    train_data, test_data = [0,0]
+    train_data, test_data = [0, 0]
 
-    input_col = ["CRIM", "ZN", "INDUS", "CHAS", "NOX", "RM", "AGE", "DIS", "RAD", "TAX", "PTRATIO", "B", "LSTAT"]
-    output_col = ["MEDV"]
     X = np.array(dataset.data)
     Y = np.array(dataset.target).reshape(-1, 1)
-    #print(pd.DataFrame(X).head())
-
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=args.test_size,
                                                         random_state=args.seed)
-    X_train = pd.DataFrame(X_train, columns=input_col)
-    X_test = pd.DataFrame(X_test, columns=input_col)
-    Y_train = pd.DataFrame(Y_train, columns=output_col)
-    Y_train = pd.DataFrame(Y_test, columns=output_col)
+    X_train = pd.DataFrame(X_train)
+    X_test = pd.DataFrame(X_test)
+    Y_train = pd.DataFrame(Y_train)
+    Y_train = pd.DataFrame(Y_test)
 
     # TODO: Process the input columns in the following way:
     #
@@ -63,32 +62,30 @@ def main(args):
     # and then the real-valued features. To process different dataset columns
     # differently, you can use `sklearn.compose.ColumnTransformer`.
 
+    try:
+        # Check categorical columns
+        categ_check = np.all(X.astype(int) == X, axis=0)
+        categ_colnames = [i for i, x in enumerate(categ_check) if x]
 
-    categ_check = np.all(X.astype(int) == X, axis=0)
-    categ_colnames = [input_col[i] for i, x in enumerate(categ_check) if x]
+        # Initialize Encoder
+        myencoder = OneHotEncoder(sparse=False, categories="auto")
 
-    #print(categ_colnames)
-    # ['CHAS', 'RAD', 'TAX'] columns are categorical. So, we will One-Hot-Encode them
+        # fit Encoder to separate columns
+        encoded_cols = [np.c_[myencoder.fit_transform(np.array(X_train.loc[:, i]).reshape(-1, 1))] for i in
+                        categ_colnames]
+        encoded_cols = np.c_[tuple(encoded_cols)]
 
-    # Initialize Encoder
-    myencoder = OneHotEncoder(sparse=False, categories="auto")
+        # drop Encoded columns
+        X_train.drop(categ_colnames, axis=1)
 
-    # fit Encoder to separate columns
-    encoded_cols = [np.c_[myencoder.fit_transform(np.array(X_train.loc[:, i]).reshape(-1, 1))] for i in categ_colnames]
-    encoded_cols = np.c_[tuple(encoded_cols)]
+        # normalize necessary columns
+        normalizer = StandardScaler()
+        X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
 
-    # drop Encoded columns
-    X_train.drop(categ_colnames, axis=1)
-
-    # normalize necessary columns
-    normalizer = StandardScaler()
-    X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
-
-    # merge encoded vs original columns
-    X_train = pd.DataFrame(np.c_[encoded_cols, X_train])
-
-
-
+        # merge encoded vs original columns
+        X_train = pd.DataFrame(np.c_[encoded_cols, X_train])
+    except:
+        pass
 
     # TODO: Generate polynomial features of order 2 from the current features.
     # If the input values are [a, b, c, d], you should generate
@@ -99,7 +96,6 @@ def main(args):
     start_col = X_train.shape[1]
     X_train = pd.DataFrame(poly.fit_transform(X_train))
     X_train = X_train.iloc[:, start_col:]
-
 
     # TODO: You can wrap all the feature processing steps into one transformer
     # by using `sklearn.pipeline.Pipeline`. Although not strictly needed, it is
@@ -113,7 +109,6 @@ def main(args):
     train_data = X_train
     test_data = Y_train
     return train_data, test_data
-
 
 
 if __name__ == "__main__":
