@@ -26,6 +26,9 @@ parser.add_argument("--seed", default=42, type=int, help="Random seed")
 parser.add_argument("--test_size", default=0.5, type=lambda x:int(x) if x.isdigit() else float(x), help="Test set size")
 # If you add more arguments, ReCodEx will keep them with your default values.
 
+
+# If you add more arguments, ReCodEx will keep them with your default values.
+
 def main(args):
     # Create a random generator with a given seed
     generator = np.random.RandomState(args.seed)
@@ -36,12 +39,11 @@ def main(args):
     # TODO: Append a constant feature with value 1 to the end of every input data
     data = np.c_[data, np.ones(data.shape[0])]
 
-
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
     train_data, test_data, train_target, test_target = train_test_split(data, target, test_size=args.test_size,
-                                                        random_state=args.seed)
+                                                                        random_state=args.seed)
 
     # Generate initial linear regression weights
     weights = generator.uniform(size=train_data.shape[1])
@@ -60,18 +62,17 @@ def main(args):
             ind = permutation[k]
             x_i = train_data[ind]
             t_i = train_target[ind]
-            grad = (np.dot(x_i.T, weights) - t_i) * x_i
+            grad = (np.dot(x_i.T, weights) - t_i)    * x_i
             avg_grad = avg_grad + grad
         avg_grad = avg_grad / args.batch_size
         weights = weights - args.learning_rate * avg_grad
 
         # TODO: Append current RMSE on train/test to train_rmses/test_rmses.
-        train_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(train_target, train_data @ weights)))
-        test_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(test_target, test_data @ weights)))
-
+        train_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(train_target, np.dot(train_data, weights))))
+        test_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(test_target, np.dot(test_data, weights))))
 
     # TODO: Compute into `explicit_rmse` test data RMSE when
-    # fitting `sklearn.linear_model.LinearRegression` on train_data.
+    # fitting `sklearn.linear_model.Lin earRegression` on train_data.
     reg = LinearRegression()
     reg.fit(train_data, train_target)
     explicit_rmse = np.sqrt(sklearn.metrics.mean_squared_error(reg.predict(test_data), test_target))
@@ -87,6 +88,7 @@ def main(args):
         else: plt.savefig(args.plot, transparent=True, bbox_inches="tight")
 
     return test_rmses[-1], explicit_rmse
+
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
