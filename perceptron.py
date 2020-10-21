@@ -8,7 +8,7 @@ import sklearn.datasets
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
 parser.add_argument("--data_size", default=100, type=int, help="Data size")
-parser.add_argument("--plot", default=False, const=True, nargs="?", type=str, help="Plot the predictions")
+parser.add_argument("--plot", default=True, const=True, nargs="?", type=str, help="Plot the predictions")
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")
 # If you add more arguments, ReCodEx will keep them with your default values.
@@ -39,7 +39,7 @@ def main(args):
         # for incorrectly classified examples. If all training instances are
         # correctly classified, set `done=True`, otherwise set `done=False`.
         done = True
-        for i in range(len(permutation)):
+        for i in permutation:
             predicted_y = np.dot(data[i], weights.T)
             if predicted_y * target[i] <= 0:
                 weights = weights + target[i] * data[i]
