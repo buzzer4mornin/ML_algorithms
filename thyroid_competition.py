@@ -16,8 +16,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sn
 import sklearn
+from imblearn.over_sampling import RandomOverSampler
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
 
 
 class Dataset:
@@ -30,6 +33,7 @@ class Dataset:
     The target variable is binary, with 1 denoting a thyroid disease and
     0 normal function.
     """
+
     def __init__(self,
                  name="thyroid_competition.train.npz",
                  url="https://ufal.mff.cuni.cz/~straka/courses/npfl129/2021/datasets/"):
@@ -51,6 +55,7 @@ parser.add_argument("--seed", default=42, type=int, help="Random seed")
 # For these and any other arguments you add, ReCodEx will keep your default value.
 parser.add_argument("--model_path", default="thyroid_competition.model", type=str, help="Model path")
 
+
 def main(args):
     if args.predict is None:
         # We are training a model.
@@ -67,26 +72,50 @@ def main(args):
         'Explanatory Data Analysis'
 
         # first 15 features are Binary, remaining 6 features are Real-valued
-        #for line in range(min(X.shape[0], 5)):
+        # for line in range(min(X.shape[0], 5)):
         #    print(" ".join("{:.4g}".format(X.loc[line, column]) for column in range(min(X.shape[1], 60))))
 
-        #print(X.info()) # No NULL values.
+        # print(X.info()) # No NULL values.
 
-        #X = X.iloc[:, 15:21]
-        #print(X.describe()) # all real-valued features are in [0,1] interval. So, no need for normalization
+        # X = X.iloc[:, 15:21]
+        # print(X.describe()) # all real-valued features are in [0,1] interval. So, no need for normalization
 
         # print(y.iloc[:, 0].value_counts()) # dataset is extremely imbalanced {0:3488, 1:284}
 
-        #X = train.data
-        #y = train.target
-        #df = pd.DataFrame(np.c_[X, y])
-        #corrMatrix = df.corr()
-        #sn.heatmap(corrMatrix, annot=True)
-        #plt.show()      # 18/20 columns have 0.77 correlation, delete one of them
+        # X = train.data
+        # y = train.target
+        # df = pd.DataFrame(np.c_[X, y])
+        # corrMatrix = df.corr()
+        # sn.heatmap(corrMatrix, annot=True)
+        # plt.show()      # 18/20 columns have 0.77 correlation, delete one of them
 
         # ==================================================================================================
-        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
+
+
+        #best ration 0.093 so far
+        oversample = RandomOverSampler(sampling_strategy=0.093)
+        X_over, y_over = oversample.fit_resample(X, y)
+
+        X_train, X_test, y_train, y_test = train_test_split(X_over, y_over, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
+
+        y_train = np.asarray(y_train).ravel()
+        y_test = np.asarray(y_test).ravel()
+        clf = LogisticRegression(random_state=args.seed).fit(X_train, y_train)
+
+        predicted_Y = clf.predict(X_test)
+
+        count = 0
+        for i, j in zip(predicted_Y, y_test):
+            if i == j: count += 1
+
+        print(count / y_test.shape[0])
+
+
+
+
+
+
 
 
 
