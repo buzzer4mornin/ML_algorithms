@@ -71,6 +71,8 @@ def main(args):
         #X = X.iloc[:, 15:21]
         #print(X.describe()) # all real-valued features are in [0,1] interval. So, no need for normalization
 
+        # print(y.iloc[:, 0].value_counts()) # dataset is extremely imbalanced {0:3488, 1:284}
+
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
