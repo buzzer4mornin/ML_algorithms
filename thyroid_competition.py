@@ -68,6 +68,9 @@ def main(args):
 
         #print(X.info()) # No NULL values.
 
+        #X = X.iloc[:, 15:21]
+        #print(X.describe()) # all real-valued features are in [0,1] interval. So, no need for normalization
+
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
