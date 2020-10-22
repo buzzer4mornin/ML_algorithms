@@ -13,6 +13,8 @@ import pickle
 import urllib.request
 
 import numpy as np
+import pandas as pd
+
 
 class Dataset:
     """Thyroid Dataset.
@@ -50,6 +52,8 @@ def main(args):
         # We are training a model.
         np.random.seed(args.seed)
         train = Dataset()
+        X = train.data
+        y = train.target
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
