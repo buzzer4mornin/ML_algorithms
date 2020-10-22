@@ -30,7 +30,6 @@ parser.add_argument("--test_size", default=0.5, type=lambda x: int(x) if x.isdig
 
 def main(args):
     dataset = getattr(sklearn.datasets, "load_{}".format(args.dataset))()
-    train_data, test_data = [0, 0]
 
     X = np.array(dataset.data)
     Y = np.array(dataset.target).reshape(-1, 1)
@@ -42,8 +41,6 @@ def main(args):
                                                         random_state=args.seed)
     X_train = pd.DataFrame(X_train)
     X_test = pd.DataFrame(X_test)
-    Y_train = pd.DataFrame(Y_train)
-    Y_train = pd.DataFrame(Y_test)
 
     # TODO: Process the input columns in the following way:
     #
@@ -67,23 +64,33 @@ def main(args):
         categ_check = np.all(X.astype(int) == X, axis=0)
         categ_colnames = [i for i, x in enumerate(categ_check) if x]
 
+        #print(X_train.shape,X_test.shape)
+
         # Initialize Encoder
-        myencoder = OneHotEncoder(sparse=False, categories="auto")
+        myencoder = OneHotEncoder(sparse=False, handle_unknown="ignore")
 
         # fit Encoder to separate columns
         encoded_cols = [np.c_[myencoder.fit_transform(np.array(X_train.loc[:, i]).reshape(-1, 1))] for i in
                         categ_colnames]
         encoded_cols = np.c_[tuple(encoded_cols)]
+        encoded_cols_1 = [np.c_[myencoder.fit_transform(np.array(X_test.loc[:, i]).reshape(-1, 1))] for i in
+                        categ_colnames]                                              #yyyyyyy
+        encoded_cols_1 = np.c_[tuple(encoded_cols_1)]                                 #yyyyyyy
+
+        #print(encoded_cols.shape, encoded_cols_1.shape)
 
         # drop Encoded columns
         X_train.drop(categ_colnames, axis=1)
+        X_test.drop(categ_colnames, axis=1)                                          #yyyyyyy
 
         # normalize necessary columns
         normalizer = StandardScaler()
         X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
+        X_test.iloc[:, 0:10] = normalizer.fit_transform(X_test.iloc[:, 0:10])         #yyyyyyy
 
         # merge encoded vs original columns
         X_train = pd.DataFrame(np.c_[encoded_cols, X_train])
+        X_test = pd.DataFrame(np.c_[encoded_cols_1, X_test])                              #yyyyyyy
     except:
         pass
 
@@ -96,6 +103,9 @@ def main(args):
     start_col = X_train.shape[1]
     X_train = pd.DataFrame(poly.fit_transform(X_train))
     X_train = X_train.iloc[:, start_col:]
+    start_col_1 = X_test.shape[1]                                                         #yyyyyyy
+    X_test = pd.DataFrame(poly.fit_transform(X_test))                                     #yyyyyyy
+    X_test = X_test.iloc[:, start_col_1:]                                                  #yyyyyyy
 
     # TODO: You can wrap all the feature processing steps into one transformer
     # by using `sklearn.pipeline.Pipeline`. Although not strictly needed, it is
@@ -104,16 +114,18 @@ def main(args):
     # TODO: Fit the feature processing steps on the training data.
     # Then transform the training data into `train_data` (you can do both these
     # steps using `fit_transform`), and transform testing data to `test_data`.
-    X_train = np.asarray(X_train)
-    Y_train = np.asarray(Y_train)
-    train_data = X_train
-    test_data = Y_train
+    train_data = np.asarray(X_train)
+    test_data = np.asarray(X_test)
+    #print(train_data.shape)
+    #print(test_data.shape)
+
     return train_data, test_data
 
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     train_data, test_data = main(args)
-    for dataset in [train_data, test_data]:
+    '''for dataset in [train_data, test_data]:
         for line in range(min(dataset.shape[0], 5)):
-            print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))
+            print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))'''
+
