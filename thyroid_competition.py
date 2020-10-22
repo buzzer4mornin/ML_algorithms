@@ -55,6 +55,14 @@ def main(args):
         X = train.data
         y = train.target
 
+        # convert to DataFrame
+        X = pd.DataFrame(X)
+        y = pd.DataFrame(y)
+
+        # ==================================================================================================
+        'Explanatory Data Analysis'
+
+
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
 
