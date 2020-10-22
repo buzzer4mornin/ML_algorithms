@@ -73,6 +73,15 @@ def main(args):
 
         # print(y.iloc[:, 0].value_counts()) # dataset is extremely imbalanced {0:3488, 1:284}
 
+        #X = train.data
+        #y = train.target
+        #df = pd.DataFrame(np.c_[X, y])
+        #corrMatrix = df.corr()
+        #sn.heatmap(corrMatrix, annot=True)
+        #plt.show()      # 18/20 columns have 0.77 correlation, delete one of them
+
+
+
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
