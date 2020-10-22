@@ -62,6 +62,9 @@ def main(args):
         # ==================================================================================================
         'Explanatory Data Analysis'
 
+        # first 15 features are Binary, remaining 6 features are Real-valued
+        # for line in range(min(X.shape[0], 5)):
+        #    print(" ".join("{:.4g}".format(X.loc[line, column]) for column in range(min(X.shape[1], 60))))
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
