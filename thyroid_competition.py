@@ -85,6 +85,9 @@ def main(args):
         #plt.show()      # 18/20 columns have 0.77 correlation, delete one of them
 
         # ==================================================================================================
+        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
+                                                            random_state=args.seed, shuffle=True)
+
 
 
         # TODO: Train a model on the given dataset and store it in `model`.
