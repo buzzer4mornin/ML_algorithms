@@ -15,6 +15,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sn
+import sklearn
+from sklearn.linear_model import Lasso, Ridge
+from sklearn.model_selection import train_test_split
+
 
 class Dataset:
     """Thyroid Dataset.
@@ -80,7 +84,7 @@ def main(args):
         #sn.heatmap(corrMatrix, annot=True)
         #plt.show()      # 18/20 columns have 0.77 correlation, delete one of them
 
-
+        # ==================================================================================================
 
 
         # TODO: Train a model on the given dataset and store it in `model`.
