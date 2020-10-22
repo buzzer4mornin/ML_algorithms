@@ -19,7 +19,7 @@ import sklearn
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.linear_model import Lasso, Ridge
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
@@ -119,13 +119,12 @@ def main(args):
         #X_over, y_over = oversample.fit_resample(X, y)
 
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
+        '''X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
                                                             random_state=args.seed, shuffle=True)
 
         y_train = np.asarray(y_train).ravel()
         y_test = np.asarray(y_test).ravel()
         clf = LogisticRegression(random_state=args.seed, solver="liblinear", class_weight="balanced", tol=1e-2).fit(X_train, y_train)
-        help(LogisticRegression)
 
         predicted_Y = clf.predict(X_test)
 
@@ -133,11 +132,36 @@ def main(args):
         for i, j in zip(predicted_Y, y_test):
             if i == j: count += 1
 
-        print(count / y_test.shape[0])
+        print(count / y_test.shape[0])'''
 
         # ==================================================================================================
+        # Prepare K-fold cross validation and find average RMSE
+        X = np.asarray(X)
+        y = np.asarray(y)
+        kf = KFold(n_splits=10, shuffle=True, random_state=42)
+        all_pairs = kf.split(X)
 
+        explicit_rmse = 0
+        for train_indices, test_indices in all_pairs:
+            train_data = X[train_indices]
+            test_data = X[test_indices]
+            train_target = y[train_indices]
+            test_target = y[test_indices]
 
+            train_target = np.asarray(train_target).ravel()
+            test_target = np.asarray(test_target).ravel()
+            clf = LogisticRegression(random_state=args.seed, solver="liblinear", class_weight="balanced", tol=1e-2).fit(train_data, train_target)
+            predicted_Y = clf.predict(test_data)
+            count = 0
+            for i, j in zip(predicted_Y, test_target):
+                if i == j: count += 1
+
+            explicit_rmse += count / test_target.shape[0]
+
+        avg_rmse = explicit_rmse / kf.n_splits
+        print(avg_rmse)
+
+        # ==================================================================================================
 
 
         # TODO: Train a model on the given dataset and store it in `model`.
