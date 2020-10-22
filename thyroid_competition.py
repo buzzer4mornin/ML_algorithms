@@ -21,6 +21,7 @@ from imblearn.under_sampling import RandomUnderSampler
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 
 class Dataset:
@@ -90,18 +91,41 @@ def main(args):
         # plt.show()      # 18/20 columns have 0.77 correlation, delete one of them
 
         # ==================================================================================================
+        #X = X.iloc[:, :-1]
+
+        '''X_bool = X.loc[:, 0:14]
+        X_real = X.loc[:, 15:21]
+
+        poly = PolynomialFeatures(2, include_bias=False)
+        start_col = X_real.shape[1]
+        X_real = pd.DataFrame(poly.fit_transform(X))
+        X_real = X_real.iloc[:, start_col:]
+
+        X = np.c_[X_real, X_bool]'''
+
+        #poly = PolynomialFeatures(2, include_bias=False)
+        #start_col = X.shape[1]
+        #X = pd.DataFrame(poly.fit_transform(X))
+        #X = X.iloc[:, start_col:]
+
+
+        normalizer = StandardScaler()
+        X.iloc[:, 15:21] = normalizer.fit_transform(X.iloc[:, 15:21])
+        X = normalizer.fit_transform(X)
 
 
         #best ration 0.093 so far
-        oversample = RandomOverSampler(sampling_strategy=0.093)
-        X_over, y_over = oversample.fit_resample(X, y)
+        #oversample = RandomOverSampler(sampling_strategy=0.093)
+        #X_over, y_over = oversample.fit_resample(X, y)
 
-        X_train, X_test, y_train, y_test = train_test_split(X_over, y_over, test_size=0.2,
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
                                                             random_state=args.seed, shuffle=True)
 
         y_train = np.asarray(y_train).ravel()
         y_test = np.asarray(y_test).ravel()
-        clf = LogisticRegression(random_state=args.seed).fit(X_train, y_train)
+        clf = LogisticRegression(random_state=args.seed, solver="liblinear", class_weight="balanced", tol=1e-2).fit(X_train, y_train)
+        help(LogisticRegression)
 
         predicted_Y = clf.predict(X_test)
 
@@ -111,10 +135,7 @@ def main(args):
 
         print(count / y_test.shape[0])
 
-
-
-
-
+        # ==================================================================================================
 
 
 
