@@ -50,14 +50,23 @@ def main(args):
         # TODO: Process the data in the order of `permutation`.
         # For every `args.batch_size`, average their gradient, and update the weights.
         # You can assume that `args.batch_size` exactly divides `train_data.shape[0]`.
+        avg_grad = np.zeros(3)
+        for k in range(args.batch_size):
+            ind = permutation[k]
+            x_i = train_data[ind]
+            t_i = train_target[ind]
+            grad = (sigmoid(np.dot(x_i.T, weights)) - t_i) * x_i
+            avg_grad = avg_grad + grad
+        avg_grad = avg_grad / args.batch_size
+        weights = weights - args.learning_rate * avg_grad
 
         # TODO: After the SGD iteration, measure the average loss and accuracy for both the
         # train test and the test set. The loss is the average MLE loss (i.e., the
         # negative log likelihood, or crossentropy loss, or KL loss) per example.
         train_accuracy, train_loss, test_accuracy, test_loss = None, None, None, None
 
-        print("After iteration {}: train loss {:.4f} acc {:.1f}%, test loss {:.4f} acc {:.1f}%".format(
-            iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))
+        '''print("After iteration {}: train loss {:.4f} acc {:.1f}%, test loss {:.4f} acc {:.1f}%".format(
+            iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))'''
 
     '''if args.plot:
             import matplotlib.pyplot as plt
