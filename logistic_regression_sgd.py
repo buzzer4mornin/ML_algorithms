@@ -28,15 +28,19 @@ def main(args):
         n_samples=args.data_size, n_features=2, n_informative=2, n_redundant=0, random_state=args.seed)
 
     # TODO: Append a constant feature with value 1 to the end of every input data
+    data = np.pad(data, ((0, 0), (0, 1)), constant_values=1)
+
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
+    train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(
+        data, target, test_size=args.test_ratio, random_state=args.seed)
 
     # Generate initial linear regression weights
-    weights = generator.uniform(size=train_data.shape[1])
+    weights = np.random.uniform(size=train_data.shape[1])
 
-    for iteration in range(args.iterations):
+    '''for iteration in range(args.iterations):
         permutation = generator.permutation(train_data.shape[0])
 
         # TODO: Process the data in the order of `permutation`.
@@ -49,9 +53,9 @@ def main(args):
         train_accuracy, train_loss, test_accuracy, test_loss = None, None, None, None
 
         print("After iteration {}: train loss {:.4f} acc {:.1f}%, test loss {:.4f} acc {:.1f}%".format(
-            iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))
+            iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))'''
 
-        if args.plot:
+    '''if args.plot:
             import matplotlib.pyplot as plt
             if args.plot is not True:
                 if not iteration: plt.figure(figsize=(6.4*3, 4.8*(args.iterations+2)//3))
@@ -65,11 +69,11 @@ def main(args):
             plt.scatter(test_data[:, 0], test_data[:, 1], c=test_target, label="test", cmap=plt.cm.RdBu)
             plt.legend(loc="upper right")
             if args.plot is True: plt.show()
-            else: plt.savefig(args.plot, transparent=True, bbox_inches="tight")
+            else: plt.savefig(args.plot, transparent=True, bbox_inches="tight")'''
 
     return weights
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     weights = main(args)
-    print("Learned weights", *("{:.2f}".format(weight) for weight in weights))
+    #print("Learned weights", *("{:.2f}".format(weight) for weight in weights))
