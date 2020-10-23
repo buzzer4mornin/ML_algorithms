@@ -72,7 +72,12 @@ def main(args):
 
         train_loss = -1 * train_loss / train_data.shape[0]
 
+        test_loss = 0
+        for i in range(test_data.shape[0]):
+            test_loss = test_loss + (test_target[i] * np.log(sigmoid(np.dot(test_data[i].T, weights))) +
+                                       (1 - test_target[i]) * np.log(1 - sigmoid(np.dot(test_data[i].T, weights))))
 
+        test_loss = -1 * test_loss / test_data.shape[0]
 
         '''print("After iteration {}: train loss {:.4f} acc {:.1f}%, test loss {:.4f} acc {:.1f}%".format(
             iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))'''
