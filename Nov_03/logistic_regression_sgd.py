@@ -40,7 +40,11 @@ def main(args):
     # Generate initial linear regression weights
     weights = np.random.uniform(size=train_data.shape[1])
 
-    '''for iteration in range(args.iterations):
+    # Sigmoid Function
+    def sigmoid(x):
+        return 1 / (1 + np.math.exp(-x))
+
+    for iteration in range(args.iterations):
         permutation = generator.permutation(train_data.shape[0])
 
         # TODO: Process the data in the order of `permutation`.
@@ -53,7 +57,7 @@ def main(args):
         train_accuracy, train_loss, test_accuracy, test_loss = None, None, None, None
 
         print("After iteration {}: train loss {:.4f} acc {:.1f}%, test loss {:.4f} acc {:.1f}%".format(
-            iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))'''
+            iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))
 
     '''if args.plot:
             import matplotlib.pyplot as plt
