@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import seaborn as sn
 import numpy as np
 import sklearn
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, LogisticRegression
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import OrdinalEncoder, PolynomialFeatures, Normalizer, OneHotEncoder
 
@@ -132,7 +132,6 @@ def main(args):
         predicted_Y = clf.predict(X_test)
         rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
         print(rmse)
-
 
         # ======================================== Ridge Regression ===================================================
 
