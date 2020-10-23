@@ -65,22 +65,26 @@ def main(args):
         # negative log likelihood, or crossentropy loss, or KL loss) per example.
         train_accuracy, train_loss, test_accuracy, test_loss = None, None, None, None
 
-        train_loss = 0
+        '''train_loss = 0
         for i in range(train_data.shape[0]):
             train_loss = train_loss + (train_target[i] * np.log(sigmoid(np.dot(train_data[i].T, weights))) +
                                        (1 - train_target[i]) * np.log(1 - sigmoid(np.dot(train_data[i].T, weights))))
-
         train_loss = -1 * train_loss / train_data.shape[0]
 
         test_loss = 0
         for i in range(test_data.shape[0]):
             test_loss = test_loss + (test_target[i] * np.log(sigmoid(np.dot(test_data[i].T, weights))) +
                                        (1 - test_target[i]) * np.log(1 - sigmoid(np.dot(test_data[i].T, weights))))
+        test_loss = -1 * test_loss / test_data.shape[0]'''
 
-        test_loss = -1 * test_loss / test_data.shape[0]
+        train_loss = sklearn.metrics.log_loss(train_target, np.dot(train_data, weights))
+        print(train_loss)
+        #print(np.dot(train_data, weights))
 
-        '''print("After iteration {}: train loss {:.4f} acc {:.1f}%, test loss {:.4f} acc {:.1f}%".format(
-            iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))'''
+
+
+        #print("After iteration {}: train loss {:.4f} acc {:.1f}%, test loss {:.4f} acc {:.1f}%".format(
+        #    iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))
 
     '''if args.plot:
             import matplotlib.pyplot as plt
