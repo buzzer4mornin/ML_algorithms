@@ -33,7 +33,7 @@ def main(args):
     dataset = getattr(sklearn.datasets, "load_{}".format(args.dataset))()
 
     X = np.array(dataset.data)
-    Y = np.array(dataset.target)
+    Y = np.array(dataset.target).reshape(-1, 1)
 
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
@@ -60,26 +60,65 @@ def main(args):
     # and then the real-valued features. To process different dataset columns
     # differently, you can use `sklearn.compose.ColumnTransformer`.
 
-    # Check categorical columns
-    categ_check = np.all(X.astype(int) == X, axis=0)
-    categ_colnames = [i for i, x in enumerate(categ_check) if x]
-    non_categ_colnames = [i for i, x in enumerate(categ_check) if not x]
+    try:
+        # Check categorical columns
+        categ_check = np.all(X.astype(int) == X, axis=0)
+        categ_colnames = [i for i, x in enumerate(categ_check) if x]
 
-    col_trans = sklearn.compose.ColumnTransformer([
-        ('1hot', sklearn.preprocessing.OneHotEncoder(sparse=False, handle_unknown='ignore'), categ_colnames),
-        ('standard', sklearn.preprocessing.StandardScaler(), non_categ_colnames)
-    ])
+        #print(X_train.shape,X_test.shape)
+
+        # Initialize Encoder
+        myencoder = OneHotEncoder(sparse=False, handle_unknown="ignore")
+
+        # fit Encoder to separate columns
+        encoded_cols = [np.c_[myencoder.fit_transform(np.array(X_train.loc[:, i]).reshape(-1, 1))] for i in
+                        categ_colnames]
+        encoded_cols = np.c_[tuple(encoded_cols)]
+        encoded_cols_1 = [np.c_[myencoder.fit_transform(np.array(X_test.loc[:, i]).reshape(-1, 1))] for i in
+                        categ_colnames]                                              #yyyyyyy
+        encoded_cols_1 = np.c_[tuple(encoded_cols_1)]                                 #yyyyyyy
+
+        #print(encoded_cols.shape, encoded_cols_1.shape)
+
+        # drop Encoded columns
+        X_train.drop(categ_colnames, axis=1)
+        X_test.drop(categ_colnames, axis=1)                                          #yyyyyyy
+
+        # normalize necessary columns
+        normalizer = StandardScaler()
+        X_train.iloc[:, 0:10] = normalizer.fit_transform(X_train.iloc[:, 0:10])
+        X_test.iloc[:, 0:10] = normalizer.fit_transform(X_test.iloc[:, 0:10])         #yyyyyyy
+
+        # merge encoded vs original columns
+        X_train = pd.DataFrame(np.c_[encoded_cols, X_train])
+        X_test = pd.DataFrame(np.c_[encoded_cols_1, X_test])                              #yyyyyyy
+    except:
+        pass
 
     # TODO: Generate polynomial features of order 2 from the current features.
     # If the input values are [a, b, c, d], you should generate
     # [a^2, ab, ac, ad, b^2, bc, bd, c^2, cd, d^2]. You can generate such polynomial
     # features either manually, or using
     # `sklearn.preprocessing.PolynomialFeatures(2, include_bias=False)`.
-    poly = sklearn.preprocessing.PolynomialFeatures(2, include_bias=False)
-    pipeline = sklearn.pipeline.Pipeline([('col_trans', col_trans), ('poly', poly)])
-    fit = pipeline.fit(X_train)
-    train_data = fit.transform(X_train)
-    test_data = fit.transform(X_test)
+    poly = PolynomialFeatures(2, include_bias=False)
+    start_col = X_train.shape[1]
+    X_train = pd.DataFrame(poly.fit_transform(X_train))
+    X_train = X_train.iloc[:, start_col:]
+    start_col_1 = X_test.shape[1]                                                         #yyyyyyy
+    X_test = pd.DataFrame(poly.fit_transform(X_test))                                     #yyyyyyy
+    X_test = X_test.iloc[:, start_col_1:]                                                  #yyyyyyy
+
+    # TODO: You can wrap all the feature processing steps into one transformer
+    # by using `sklearn.pipeline.Pipeline`. Although not strictly needed, it is
+    # usually comfortable.
+
+    # TODO: Fit the feature processing steps on the training data.
+    # Then transform the training data into `train_data` (you can do both these
+    # steps using `fit_transform`), and transform testing data to `test_data`.
+    train_data = np.asarray(X_train)
+    test_data = np.asarray(X_test)
+    #print(train_data.shape)
+    #print(test_data.shape)
 
     return train_data, test_data
 
@@ -87,6 +126,7 @@ def main(args):
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     train_data, test_data = main(args)
-    for dataset in [train_data, test_data]:
+    '''for dataset in [train_data, test_data]:
         for line in range(min(dataset.shape[0], 5)):
-            print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))
+            print(" ".join("{:.4g}".format(dataset[line, column]) for column in range(min(dataset.shape[1], 60))))'''
+
