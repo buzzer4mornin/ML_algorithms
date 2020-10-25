@@ -82,7 +82,6 @@ def main(args):
         #print(np.dot(train_data, weights))
 
 
-
         #print("After iteration {}: train loss {:.4f} acc {:.1f}%, test loss {:.4f} acc {:.1f}%".format(
         #    iteration + 1, train_loss, 100 * train_accuracy, test_loss, 100 * test_accuracy))
 
