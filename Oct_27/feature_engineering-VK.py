@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+
+# Team:
+# 2f67b427-a885-11e7-a937-00505601122b
+# b030d249-e9cb-11e9-9ce9-00505601122b
+# 3351ff04-3f62-11e9-b0fd-00505601122b
+
 import argparse
 
 import numpy as np
@@ -41,17 +47,17 @@ def main(args):
     # and then the real-valued features. To process different dataset columns
     # differently, you can use `sklearn.compose.ColumnTransformer`.
     
-    non_categ = [i for i in range(dataset['data'].shape[1])]
+    non_categ = []
 
     categ = []
     
     for i in range(dataset['data'].shape[1]):
         if  np.all(dataset['data'][:,i].astype(int) == dataset['data'][:,i], axis=0):
             categ.append(i)
+        else:
+            non_categ.append(i)
 
-    for i in non_categ:
-        if i in categ:
-            non_categ.remove(i)
+    
 
     col_trans = sklearn.compose.ColumnTransformer([
         ('1hot', sklearn.preprocessing.OneHotEncoder(handle_unknown = 'ignore'), categ),
