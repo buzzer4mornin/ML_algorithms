@@ -119,7 +119,6 @@ def main(args):
         X = pd.DataFrame(poly.fit_transform(X))
         X = X.iloc[:, start_col:]
 
-
         X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
         # best_alfa = 0.2
@@ -129,101 +128,6 @@ def main(args):
         predicted_Y = clf.predict(X_test)
         rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
         print(rmse)
-
-        # ======================================== Ridge Regression ===================================================
-
-        '''# best_alfa = 14.34
-        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
-                                                            random_state=args.seed, shuffle=True)
-        
-        best_rmse = 999
-        lambdas = []
-        rmses = []
-        for i in np.linspace(0, 20, 100):
-            lambdas.append(round(i, 2))
-            clf = Ridge(alpha=round(i, 2), tol=0.001, solver='auto')
-            clf.fit(X_train, Y_train)
-            predicted_Y = clf.predict(X_test)
-            training_error = clf.predict(X_train)
-            rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
-            rmses.append(rmse)
-            if rmse < best_rmse:
-                best_lambda = round(i, 2)
-                best_rmse = rmse
-
-        print("Best lambda:", best_lambda, "\nBest rmse:", best_rmse)'''
-
-        # ======================================== Lasso Regression ===================================================
-
-        '''# best_alfa = 14.34
-        X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.25,
-                                                            random_state=args.seed, shuffle=True)
-        best_rmse = 999
-        lambdas = []
-        rmses = []
-        for i in np.linspace(0, 10, 100):
-            lambdas.append(round(i, 2))
-            clf = Lasso(alpha=round(i, 2), tol=0.001, random_state=args.seed)
-            clf.fit(X_train, Y_train)
-            predicted_Y = clf.predict(X_test)
-            training_error = clf.predict(X_train)
-            rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
-            rmses.append(rmse)
-            if rmse < best_rmse:
-                best_lambda = round(i, 2)
-                best_rmse = rmse
-
-        print("Best lambda:", best_lambda, "\nBest rmse:", best_rmse)'''
-
-        # =================================== K-fold Cross validation ==================================================
-        '''# Prepare K-fold cross validation and find average RMSE
-        X = np.asarray(X)
-        y = np.asarray(y)
-        kf = KFold(n_splits=10, shuffle=True, random_state=42)
-        all_pairs = kf.split(X)
-
-        explicit_rmse = 0
-        for train_indices, test_indices in all_pairs:
-            train_data = X[train_indices]
-            test_data = X[test_indices]
-            train_target = y[train_indices]
-            test_target = y[test_indices]
-
-            reg = LinearRegression()
-            reg.fit(train_data, train_target)
-            explicit_rmse += np.sqrt(sklearn.metrics.mean_squared_error(reg.predict(test_data), test_target))
-
-        avg_rmse = explicit_rmse/kf.n_splits
-        print(avg_rmse)'''
-
-        # ==================================================================================================
-        'Explanatory Data Analysis'
-        #print(X.head()) # 9 integer features, 3 real features
-
-        #print(X.info()) # No NULL values.
-
-        #X = X.iloc[:,0:5]
-        #print(X.describe())
-
-        #X.iloc[:, 5].hist(bins=50, figsize=(15, 5))
-        #plt.show()
-
-        #print(X.iloc[:,3].value_counts())
-
-        #X.corrwith(y).plot(kind='barh', figsize=[20, 10], legend=True, grid=True)
-        #plt.show()
-
-
-        X = train.data
-        y = train.target
-        df = pd.DataFrame(np.c_[X,y])
-        #print(df.iloc[:,10])
-        corrMatrix = df.corr()
-        #print(corrMatrix)
-        #sn.heatmap(corrMatrix, annot=True)
-        #plt.show()
-
-        #==================================================================================================
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
