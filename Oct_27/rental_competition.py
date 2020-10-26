@@ -106,10 +106,7 @@ def main(args):
         hour = X.loc[:, ['hour']]
         day_week = X.loc[:, ['day_week']]
         weather = X.loc[:, ['weather']]
-        del X['month']
-        del X['hour']
-        del X['day_week']
-        del X['weather']
+        X.drop(['month', 'hour', 'day_week', 'weather'], axis=1, inplace=True)
         month = myencoder.fit_transform(month)
         hour = myencoder.fit_transform(hour)
         day_week = myencoder.fit_transform(day_week)
