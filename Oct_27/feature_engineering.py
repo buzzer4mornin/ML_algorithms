@@ -66,7 +66,6 @@ def main(args):
     categ_colnames = [i for i, x in enumerate(categ_check) if x]
     non_categ_colnames = [i for i, x in enumerate(categ_check) if not x]
 
-    print(categ_colnames)
     col_trans = sklearn.compose.ColumnTransformer([
         ('1hot', sklearn.preprocessing.OneHotEncoder(sparse=False, handle_unknown='ignore'), categ_colnames),
         ('standard', sklearn.preprocessing.StandardScaler(), non_categ_colnames)

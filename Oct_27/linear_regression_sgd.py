@@ -16,11 +16,11 @@ from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
-parser.add_argument("--batch_size", default=10, type=int, help="Batch size")
+parser.add_argument("--batch_size", default=1, type=int, help="Batch size")
 parser.add_argument("--data_size", default=100, type=int, help="Data size")
 parser.add_argument("--epochs", default=50, type=int, help="Number of SGD iterations over the data")
 parser.add_argument("--learning_rate", default=0.01, type=float, help="Learning rate")
-parser.add_argument("--plot", default=False, const=True, nargs="?", type=str, help="Plot the predictions")
+parser.add_argument("--plot", default=True, const=True, nargs="?", type=str, help="Plot the predictions")
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")
 parser.add_argument("--test_size", default=0.5, type=lambda x:int(x) if x.isdigit() else float(x), help="Test set size")
@@ -63,8 +63,8 @@ def main(args):
             x_i = train_data[ind]
             t_i = train_target[ind]
             grad = (np.dot(x_i.T, weights) - t_i) * x_i
-            avg_grad = avg_grad + grad
-        avg_grad = avg_grad / args.batch_size
+            avg_grad += grad
+        avg_grad = avg_grad/args.batch_size
         weights = weights - args.learning_rate * avg_grad
 
         # TODO: Append current RMSE on train/test to train_rmses/test_rmses.
@@ -72,7 +72,7 @@ def main(args):
         test_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(test_target, np.dot(test_data, weights))))
 
 
-        print(test_rmses[-1])
+        #print(test_rmses[-1])
 
     # TODO: Compute into `explicit_rmse` test data RMSE when
     # fitting `sklearn.linear_model.Lin earRegression` on train_data.
