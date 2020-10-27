@@ -35,6 +35,7 @@ def main(args):
     X = np.array(dataset.data)
     Y = np.array(dataset.target)
 
+
     # TODO: Split the dataset into a train set and a test set.
     # Use `sklearn.model_selection.train_test_split` method call, passing
     # arguments `test_size=args.test_size, random_state=args.seed`.
@@ -65,6 +66,7 @@ def main(args):
     categ_colnames = [i for i, x in enumerate(categ_check) if x]
     non_categ_colnames = [i for i, x in enumerate(categ_check) if not x]
 
+    print(categ_colnames)
     col_trans = sklearn.compose.ColumnTransformer([
         ('1hot', sklearn.preprocessing.OneHotEncoder(sparse=False, handle_unknown='ignore'), categ_colnames),
         ('standard', sklearn.preprocessing.StandardScaler(), non_categ_colnames)

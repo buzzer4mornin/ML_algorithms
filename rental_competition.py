@@ -11,14 +11,12 @@ import os
 import pickle
 import urllib.request
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sn
 import numpy as np
 import sklearn
-from sklearn.linear_model import LinearRegression, Ridge, Lasso, LogisticRegression
-from sklearn.model_selection import train_test_split, KFold
-from sklearn.preprocessing import OrdinalEncoder, PolynomialFeatures, Normalizer, OneHotEncoder
-
+from sklearn.linear_model import Lasso
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder
+import sklearn.compose
 
 class Dataset:
 
@@ -85,8 +83,8 @@ def main(args):
         #X.loc[:, 'month'] = X.loc[:, 'month'] / pd.unique(X.loc[:, 'month']).shape[0]
 
 
-        #One_Hot_Encode
-        myencoder = OneHotEncoder(sparse=False, categories="auto")
+        '''#One_Hot_Encode
+        myencoder = OneHotEncoder(sparse=False)
         month = X.loc[:, ['month']]
         hour = X.loc[:, ['hour']]
         day_week = X.loc[:, ['day_week']]
@@ -97,41 +95,101 @@ def main(args):
         day_week = myencoder.fit_transform(day_week)
         weather = myencoder.fit_transform(weather)
         X = pd.DataFrame(np.c_[month, hour, day_week, weather, X]) #if remove 'day_week', best_rmse = 57.8
+        print(X.shape)'''
 
-        # Polynomial Feature
+        '''# Polynomial Feature
         poly = PolynomialFeatures(3, include_bias=False)
         start_col = X.shape[1]
         X = pd.DataFrame(poly.fit_transform(X))
-        X = X.iloc[:, start_col:]
+        X = X.iloc[:, start_col:]'''
+
+        categ_colnames = ['month', 'hour', 'day_week', 'weather']
+        col_trans = sklearn.compose.ColumnTransformer([
+            ('1hot', sklearn.preprocessing.OneHotEncoder(sparse=False), categ_colnames)])
+
+        poly = PolynomialFeatures(3, include_bias=False)
+        pipeline = sklearn.pipeline.Pipeline([('col_trans', col_trans), ('poly', poly)])
+
+        fit = pipeline.fit(X)
+        X = fit.transform(X)
+        print(X.shape)
+
 
         X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2,
-                                                            random_state=args.seed, shuffle=True)
+                                                            random_state=args.seed)
+
         # best_alfa = 0.2
         # best rmse = 58.66
         clf = Lasso(alpha=0.2, tol=0.001)
         clf.fit(X_train, Y_train)
+
         predicted_Y = clf.predict(X_test)
         rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, Y_test))
         print(rmse)
 
+
         # TODO: Train a model on the given dataset and store it in `model`.
-        model = None
+        model = clf
 
         # Serialize the model.
         with lzma.open(args.model_path, "wb") as model_file:
             pickle.dump(model, model_file)
 
+
     else:
         # Use the model and return test set predictions, as either a Python list or a NumPy array.
         test = Dataset(args.predict)
+        D = test.data
+
+        D = pd.DataFrame(D)
+
+        col_names = ['season', 'year', 'month', 'hour', 'holiday', 'day_week', 'work_day',
+                     'weather', 'temp', 'feel_temp', 'humidity', 'windspeed']
+        D.columns = col_names
+
+        D = D.drop(['season'], axis=1)
+
+        # Drop 'feel_temp' column -- because Temperature is highly correlated with Feeling Temperature (~0.99)
+        D = D.drop(['feel_temp'], axis=1)
+
+        # OrdinalEncode 'hour' column. Transfrom from (0,23) interval into (1,24). Reason: get rid of multiplication with 0
+        D.loc[:, 'hour'] += 1
+
+        # Same as above, OrdinalEncode 'day_week' column.
+        D.loc[:, 'day_week'] += 1
+
+        #One_Hot_Encode
+        myencoder = OneHotEncoder(sparse=False)
+        month = D.loc[:, ['month']]
+        hour = D.loc[:, ['hour']]
+        day_week = D.loc[:, ['day_week']]
+        weather = D.loc[:, ['weather']]
+        D.drop(['month', 'hour', 'day_week', 'weather'], axis=1, inplace=True)
+        month = myencoder.fit_transform(month)
+        hour = myencoder.fit_transform(hour)
+        day_week = myencoder.fit_transform(day_week)
+        weather = myencoder.fit_transform(weather)
+        D = pd.DataFrame(np.c_[month, hour, day_week, weather, D])
+
+        # Polynomial Feature
+        poly = PolynomialFeatures(3, include_bias=False)
+        start_col = D.shape[1]
+        D = pd.DataFrame(poly.fit_transform(D))
+        D = D.iloc[:, start_col:]
+        D = np.array(D)
+
 
         with lzma.open(args.model_path, "rb") as model_file:
             model = pickle.load(model_file)
 
+        #rmse = np.math.sqrt(sklearn.metrics.mean_squared_error(predicted_Y, y))
+        #print(rmse)
+
         # TODO: Generate `predictions` with the test set predictions.
-        predictions = None
+        predictions = np.array(model.predict(D))
 
         return predictions
+
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     main(args)

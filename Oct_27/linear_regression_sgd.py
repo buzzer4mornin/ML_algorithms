@@ -47,22 +47,22 @@ def main(args):
 
     # Generate initial linear regression weights
     weights = generator.uniform(size=train_data.shape[1])
+    #weights = np.zeros(train_data.shape[1])
 
     train_rmses, test_rmses = [], []
     for epoch in range(args.epochs):
         permutation = generator.permutation(train_data.shape[0])
-
         # TODO: Process the data in the order of `permutation`.
         # For every `args.batch_size`, average their gradient, and update the weights.
         # A gradient for example (x_i, t_i) is `(x_i^T weights - t_i) * x_i`,
         # and the SGD update is `weights = weights - args.learning_rate * gradient`.
         # You can assume that `args.batch_size` exactly divides `train_data.shape[0]`.
-        avg_grad = np.zeros(101)
+        avg_grad = np.zeros(args.data_size + 1)
         for k in range(args.batch_size):
             ind = permutation[k]
             x_i = train_data[ind]
             t_i = train_target[ind]
-            grad = (np.dot(x_i.T, weights) - t_i)    * x_i
+            grad = (np.dot(x_i.T, weights) - t_i) * x_i
             avg_grad = avg_grad + grad
         avg_grad = avg_grad / args.batch_size
         weights = weights - args.learning_rate * avg_grad
@@ -70,6 +70,9 @@ def main(args):
         # TODO: Append current RMSE on train/test to train_rmses/test_rmses.
         train_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(train_target, np.dot(train_data, weights))))
         test_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(test_target, np.dot(test_data, weights))))
+
+
+        print(test_rmses[-1])
 
     # TODO: Compute into `explicit_rmse` test data RMSE when
     # fitting `sklearn.linear_model.Lin earRegression` on train_data.
