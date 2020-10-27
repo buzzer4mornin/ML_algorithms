@@ -18,6 +18,7 @@ import seaborn as sn
 import sklearn
 from imblearn.over_sampling import RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
+from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LogisticRegression
@@ -91,28 +92,13 @@ def main(args):
         # plt.show()      # 18/20 columns have 0.77 correlation, delete one of them
 
         # ==================================================================================================
-        #X = X.iloc[:, :-1]
+        norm_cols, poly_cols = list(X.columns[15:21]), list(X.columns[0:15])
 
-        '''X_bool = X.loc[:, 0:14]
-        X_real = X.loc[:, 15:21]
+        col_trans = ColumnTransformer([('norm', StandardScaler(), norm_cols),
+                                       ('poly', PolynomialFeatures(2, include_bias=False), poly_cols)],
+                                      remainder='passthrough')
 
-        poly = PolynomialFeatures(2, include_bias=False)
-        start_col = X_real.shape[1]
-        X_real = pd.DataFrame(poly.fit_transform(X))
-        X_real = X_real.iloc[:, start_col:]
-
-        X = np.c_[X_real, X_bool]'''
-
-        #poly = PolynomialFeatures(2, include_bias=False)
-        #start_col = X.shape[1]
-        #X = pd.DataFrame(poly.fit_transform(X))
-        #X = X.iloc[:, start_col:]
-
-
-        normalizer = StandardScaler()
-        X.iloc[:, 15:21] = normalizer.fit_transform(X.iloc[:, 15:21])
-        X = normalizer.fit_transform(X)
-
+        X = col_trans.fit_transform(X)
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
@@ -157,7 +143,6 @@ def main(args):
         print(avg_rmse)'''
 
         # ==================================================================================================
-
 
         # TODO: Train a model on the given dataset and store it in `model`.
         model = None
