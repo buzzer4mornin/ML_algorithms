@@ -114,12 +114,7 @@ def main(args):
         X = normalizer.fit_transform(X)
 
 
-        #best ration 0.093 so far
-        #oversample = RandomOverSampler(sampling_strategy=0.093)
-        #X_over, y_over = oversample.fit_resample(X, y)
-
-
-        '''X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
 
         y_train = np.asarray(y_train).ravel()
@@ -132,10 +127,10 @@ def main(args):
         for i, j in zip(predicted_Y, y_test):
             if i == j: count += 1
 
-        print(count / y_test.shape[0])'''
+        print(count / y_test.shape[0])
 
         # ==================================================================================================
-        # Prepare K-fold cross validation and find average RMSE
+        '''# Prepare K-fold cross validation and find average RMSE
         X = np.asarray(X)
         y = np.asarray(y)
         kf = KFold(n_splits=10, shuffle=True, random_state=42)
@@ -159,7 +154,7 @@ def main(args):
             explicit_rmse += count / test_target.shape[0]
 
         avg_rmse = explicit_rmse / kf.n_splits
-        print(avg_rmse)
+        print(avg_rmse)'''
 
         # ==================================================================================================
 
