@@ -94,7 +94,7 @@ def main(args):
         # ==================================================================================================
         norm_cols, poly_cols = list(X.columns[15:21]), list(X.columns[0:15])
 
-        col_trans = ColumnTransformer([('norm', StandardScaler(), norm_cols),
+        col_trans = ColumnTransformer([('norm', StandardScaler(), norm_cols),  # without StandardScale() ~ 0.9841/better
                                        ('poly', PolynomialFeatures(2, include_bias=False), poly_cols)],
                                       remainder='passthrough')
 
@@ -115,8 +115,8 @@ def main(args):
 
         print(count / y_test.shape[0])
         # ==================================================================================================
-        '''# Prepare K-fold cross validation and find average RMSE
-        X = np.asarray(X)
+        # Prepare K-fold cross validation and find average RMSE
+        '''X = np.asarray(X)
         y = np.asarray(y)
         kf = KFold(n_splits=10, shuffle=True, random_state=42)
         all_pairs = kf.split(X)
