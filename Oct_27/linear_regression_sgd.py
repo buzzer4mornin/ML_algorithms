@@ -16,11 +16,11 @@ from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
-parser.add_argument("--batch_size", default=1, type=int, help="Batch size")
+parser.add_argument("--batch_size", default=50, type=int, help="Batch size")
 parser.add_argument("--data_size", default=100, type=int, help="Data size")
 parser.add_argument("--epochs", default=50, type=int, help="Number of SGD iterations over the data")
 parser.add_argument("--learning_rate", default=0.01, type=float, help="Learning rate")
-parser.add_argument("--plot", default=True, const=True, nargs="?", type=str, help="Plot the predictions")
+parser.add_argument("--plot", default=False, const=True, nargs="?", type=str, help="Plot the predictions")
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")
 parser.add_argument("--test_size", default=0.5, type=lambda x:int(x) if x.isdigit() else float(x), help="Test set size")
@@ -57,22 +57,26 @@ def main(args):
         # A gradient for example (x_i, t_i) is `(x_i^T weights - t_i) * x_i`,
         # and the SGD update is `weights = weights - args.learning_rate * gradient`.
         # You can assume that `args.batch_size` exactly divides `train_data.shape[0]`.
-        avg_grad = np.zeros(args.data_size + 1)
-        for k in range(args.batch_size):
-            ind = permutation[k]
-            x_i = train_data[ind]
-            t_i = train_target[ind]
-            grad = (np.dot(x_i.T, weights) - t_i) * x_i
-            avg_grad += grad
-        avg_grad = avg_grad/args.batch_size
-        weights = weights - args.learning_rate * avg_grad
+        permuted_data = train_data[permutation, :]
+        permuted_target = train_target[permutation]
+
+        n_batches = int(train_data.shape[0] / args.batch_size)
+        data_batches = np.split(permuted_data, n_batches)
+        target_batches = np.split(permuted_target, n_batches)
+        n_weights = train_data.shape[1]
+
+        averages = np.empty((n_batches, n_weights))
+        for i in range(n_batches):
+            gradients = np.empty((data_batches[i].shape[0], n_weights))
+            for j in range(data_batches[i].shape[0]):
+                gradients[j, :] = (data_batches[i][j, :].T @ weights - target_batches[i][j]) * data_batches[i][j, :]
+            averages[i, :] = np.mean(gradients, axis=0)
+            weights = weights - args.learning_rate * averages[i, :]
 
         # TODO: Append current RMSE on train/test to train_rmses/test_rmses.
         train_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(train_target, np.dot(train_data, weights))))
         test_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(test_target, np.dot(test_data, weights))))
 
-
-        #print(test_rmses[-1])
 
     # TODO: Compute into `explicit_rmse` test data RMSE when
     # fitting `sklearn.linear_model.Lin earRegression` on train_data.
