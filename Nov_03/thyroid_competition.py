@@ -119,16 +119,15 @@ def main(args):
 
         y_train = np.asarray(y_train).ravel()
         y_test = np.asarray(y_test).ravel()
-        clf = LogisticRegression(random_state=args.seed, solver="liblinear", class_weight="balanced", tol=1e-2).fit(X_train, y_train)
+        clf = LogisticRegression(random_state=args.seed, solver="liblinear",
+                                 class_weight="balanced", tol=1e-2, penalty='l1').fit(X_train, y_train)
 
         predicted_Y = clf.predict(X_test)
-
         count = 0
         for i, j in zip(predicted_Y, y_test):
             if i == j: count += 1
 
         print(count / y_test.shape[0])
-
         # ==================================================================================================
         '''# Prepare K-fold cross validation and find average RMSE
         X = np.asarray(X)
@@ -145,7 +144,8 @@ def main(args):
 
             train_target = np.asarray(train_target).ravel()
             test_target = np.asarray(test_target).ravel()
-            clf = LogisticRegression(random_state=args.seed, solver="liblinear", class_weight="balanced", tol=1e-2).fit(train_data, train_target)
+            clf = LogisticRegression(random_state=args.seed, solver="liblinear", penalty='l1',
+                                     class_weight="balanced", tol=1e-2).fit(train_data, train_target)
             predicted_Y = clf.predict(test_data)
             count = 0
             for i, j in zip(predicted_Y, test_target):
