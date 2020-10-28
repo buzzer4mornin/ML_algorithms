@@ -16,8 +16,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sn
 import sklearn
-from imblearn.over_sampling import RandomOverSampler
-from imblearn.under_sampling import RandomUnderSampler
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import Lasso, Ridge
 from sklearn.model_selection import train_test_split, KFold
@@ -105,6 +104,8 @@ def main(args):
 
         y_train = np.asarray(y_train).ravel()
         y_test = np.asarray(y_test).ravel()
+
+        # =================================== Logistic Regression =======================================
         clf = LogisticRegression(random_state=args.seed, solver="liblinear",
                                  class_weight="balanced", tol=1e-2, penalty='l1').fit(X_train, y_train)
 
@@ -112,11 +113,21 @@ def main(args):
         count = 0
         for i, j in zip(predicted_Y, y_test):
             if i == j: count += 1
+        print("Logistic Regression:", count / y_test.shape[0])
 
-        print(count / y_test.shape[0])
+        # =============================== Gaussian Discriminant Analysis ===============================
+        # solver='lsqr', shrinkage=0.7 --> [0.940]
+        # solver='eigen',shrinkage=0.7 --> [0.940]
+        lda = LinearDiscriminantAnalysis(solver='eigen', shrinkage=0.7,
+                                         store_covariance=True, tol=1.0e-4).fit(X_train, y_train)
+        predicted_Y = lda.predict(X_test)
+        count = 0
+        for i, j in zip(predicted_Y, y_test):
+            if i == j: count += 1
+        print("Linear DiscriminantAnalysis:", count / y_test.shape[0])
         # ==================================================================================================
-        # Prepare K-fold cross validation and find average RMSE
-        '''X = np.asarray(X)
+        '''# Prepare K-fold cross validation and find average RMSE
+        X = np.asarray(X)
         y = np.asarray(y)
         kf = KFold(n_splits=10, shuffle=True, random_state=42)
         all_pairs = kf.split(X)
