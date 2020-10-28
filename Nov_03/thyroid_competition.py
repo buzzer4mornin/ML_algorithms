@@ -62,12 +62,8 @@ def main(args):
         # We are training a model.
         np.random.seed(args.seed)
         train = Dataset()
-        X = train.data
-        y = train.target
-
-        # convert to DataFrame
-        X = pd.DataFrame(X)
-        y = pd.DataFrame(y)
+        X = pd.DataFrame(train.data)
+        y = pd.DataFrame(train.target)
 
         # ==================================================================================================
         'Explanatory Data Analysis'
@@ -120,6 +116,7 @@ def main(args):
         # solver='eigen',shrinkage=0.7 --> [0.940]
         lda = LinearDiscriminantAnalysis(solver='eigen', shrinkage=0.7,
                                          store_covariance=True, tol=1.0e-4).fit(X_train, y_train)
+
         predicted_Y = lda.predict(X_test)
         count = 0
         for i, j in zip(predicted_Y, y_test):
