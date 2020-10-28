@@ -23,6 +23,7 @@ from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
 
 class Dataset:
     """Thyroid Dataset.
@@ -123,8 +124,10 @@ def main(args):
             if i == j: count += 1
         print("Linear DiscriminantAnalysis:", count / y_test.shape[0])
         # ================================= Support Vector Machine ======================================
-        svm = LinearSVC(loss='squared_hinge', penalty='l2',class_weight='balanced', tol=1e-4,
-                        max_iter=4000, random_state=args.seed).fit(X_train, y_train)
+        #svm = LinearSVC(loss='squared_hinge', penalty='l2',class_weight='balanced', tol=1e-4,
+        #                max_iter=4000, random_state=args.seed).fit(X_train, y_train)
+        svm = SVC(C=1.0, kernel='rbf', degree=3, gamma='scale',
+                  class_weight='balanced', max_iter=-1, random_state=args.seed).fit(X_train, y_train)
 
         predicted_Y_svc = svm.predict(X_test)
         count = 0
