@@ -135,12 +135,17 @@ def main(args):
         count = 0
         for i, j, k in zip(predicted_Y_lr, predicted_Y_lda, y_test):
             if i != k and j == k: count += 1
-        print("LDA improvement is", count, "more positive classification out of", y_test.shape[0])
+        print("=====Comparisons=====\nLDA improvement is", count, "more than LR out of", y_test.shape[0])
         # ================================== SVM vs LR comparison =======================================
         count = 0
         for i, j, k in zip(predicted_Y_lr, predicted_Y_svc, y_test):
             if i != k and j == k: count += 1
-        print("SVM improvement is", count, "more positive classification out of", y_test.shape[0])
+        print("SVM improvement is", count, "more than LR out of", y_test.shape[0])
+        # ================================== SVM vs LDA vs LR comparison =======================================
+        count = 0
+        for i, j, k, m in zip(predicted_Y_lr, predicted_Y_lda, predicted_Y_svc, y_test):
+            if i != m and j == m and k == m: count += 1
+        print("SVM + LDA", count, "more than LR out of", y_test.shape[0])
         # ==================================================================================================
 
         '''# Prepare K-fold cross validation and find average RMSE
