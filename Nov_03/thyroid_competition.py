@@ -103,6 +103,11 @@ def main(args):
         y_test = np.asarray(y_test).ravel()
 
         # =================================== Logistic Regression =======================================
+        """
+        https://www.kaggle.com/c/the-analytics-edge-mit-15-071x/discussion/7874
+        Ensembling 10 Logistic Regressions with different features according to their importance
+        Research Feature Importance Techniques: Backward/Forward Elimination?? 
+        """
         clf = LogisticRegression(random_state=args.seed, solver="liblinear",
                                  class_weight="balanced", tol=1e-2, penalty='l1').fit(X_train, y_train)
 
