@@ -123,33 +123,11 @@ def main(args):
         for i, j in zip(predicted_Y_lda, y_test):
             if i == j: count += 1
         print("Linear DiscriminantAnalysis:", count / y_test.shape[0])
-        # ================================= Support Vector Machine ======================================
-        #svm = LinearSVC(loss='squared_hinge', penalty='l2',class_weight='balanced', tol=1e-4,
-        #                max_iter=4000, random_state=args.seed).fit(X_train, y_train)
-        svm = SVC(C=1.0, kernel='rbf', degree=3, gamma='scale',
-                  class_weight='balanced', max_iter=-1, random_state=args.seed).fit(X_train, y_train)
-
-        predicted_Y_svc = svm.predict(X_test)
-        count = 0
-        for i, j in zip(predicted_Y_svc, y_test):
-            if i == j: count += 1
-        print("Support Vector Machines:", count / y_test.shape[0])
         # ================================== LDA vs LR comparison =======================================
         count = 0
         for i, j, k in zip(predicted_Y_lr, predicted_Y_lda, y_test):
             if i != k and j == k: count += 1
         print("=====Comparisons=====\nLDA improvement is", count, "more than LR out of", y_test.shape[0])
-        # ================================== SVM vs LR comparison =======================================
-        count = 0
-        for i, j, k in zip(predicted_Y_lr, predicted_Y_svc, y_test):
-            if i != k and j == k: count += 1
-        print("SVM improvement is", count, "more than LR out of", y_test.shape[0])
-        # ================================== SVM vs LDA vs LR comparison =======================================
-        count = 0
-        for i, j, k, m in zip(predicted_Y_lr, predicted_Y_lda, predicted_Y_svc, y_test):
-            if i != m and j == m and k == m: count += 1
-            #if i != k and j == k: count += 1
-        print("SVM + LDA", count, "more than LR out of", y_test.shape[0])
         # ==================================================================================================
 
         '''# Prepare K-fold cross validation and find average RMSE
