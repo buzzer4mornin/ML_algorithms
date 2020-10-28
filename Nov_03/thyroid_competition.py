@@ -91,7 +91,7 @@ def main(args):
         norm_cols, poly_cols = list(X.columns[15:21]), list(X.columns[0:15])
 
         col_trans = ColumnTransformer([('norm', StandardScaler(), norm_cols),  # without StandardScale() ~ 0.9841/better
-                                       ('poly', PolynomialFeatures(2, include_bias=False), poly_cols)],
+                                       ('poly', PolynomialFeatures(3, include_bias=False), poly_cols)],
                                       remainder='passthrough')
 
         X = col_trans.fit_transform(X)
@@ -148,6 +148,7 @@ def main(args):
         count = 0
         for i, j, k, m in zip(predicted_Y_lr, predicted_Y_lda, predicted_Y_svc, y_test):
             if i != m and j == m and k == m: count += 1
+            #if i != k and j == k: count += 1
         print("SVM + LDA", count, "more than LR out of", y_test.shape[0])
         # ==================================================================================================
 
