@@ -105,23 +105,28 @@ def main(args):
         clf = LogisticRegression(random_state=args.seed, solver="liblinear",
                                  class_weight="balanced", tol=1e-2, penalty='l1').fit(X_train, y_train)
 
-        predicted_Y = clf.predict(X_test)
+        predicted_Y_lr = clf.predict(X_test)
         count = 0
-        for i, j in zip(predicted_Y, y_test):
+        for i, j in zip(predicted_Y_lr, y_test):
             if i == j: count += 1
         print("Logistic Regression:", count / y_test.shape[0])
 
-        # =============================== Gaussian Discriminant Analysis ===============================
+        # =============================== Linear Discriminant Analysis =======================================
         # solver='lsqr', shrinkage=0.7 --> [0.940]
         # solver='eigen',shrinkage=0.7 --> [0.940]
         lda = LinearDiscriminantAnalysis(solver='eigen', shrinkage=0.7,
                                          store_covariance=True, tol=1.0e-4).fit(X_train, y_train)
 
-        predicted_Y = lda.predict(X_test)
+        predicted_Y_lda = lda.predict(X_test)
         count = 0
-        for i, j in zip(predicted_Y, y_test):
+        for i, j in zip(predicted_Y_lda, y_test):
             if i == j: count += 1
         print("Linear DiscriminantAnalysis:", count / y_test.shape[0])
+        # ===================================== LDA over LR =================================================
+        count = 0
+        for i, j, k in zip(predicted_Y_lr, predicted_Y_lda, y_test):
+            if i != k and j == k: count += 1
+        print("LDA improvement is", count, "more positive classification out of", y_test.shape[0])
         # ==================================================================================================
         '''# Prepare K-fold cross validation and find average RMSE
         X = np.asarray(X)
