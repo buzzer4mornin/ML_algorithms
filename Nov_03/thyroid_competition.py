@@ -124,7 +124,7 @@ def main(args):
                 frs.append(i)
                 frs_val.append(v)
         X = pd.DataFrame(X)
-        X = X[X.columns[frs]]
+        X = X[X.columns[frs]] # SubSelect from frs for different LR, then do Ensembling with LRs
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
         y_train = np.asarray(y_train).ravel()
@@ -139,9 +139,8 @@ def main(args):
 
         'Plot Importance Graph'
         plt.bar([x for x in range(len(frs_val))], frs_val)
-        plt.show()
+        #plt.show()
         # Most Important features: 1st + 22nd -> ~0.976 Accuracy
-
         # ===============================================================================================
         predicted_Y_lr = clf.predict(X_test)
         count = 0
@@ -170,7 +169,7 @@ def main(args):
         # Prepare K-fold cross validation and find average RMSE
         X = np.asarray(X)
         y = np.asarray(y)
-        kf = KFold(n_splits=10, shuffle=True, random_state=42)
+        kf = KFold(n_splits=20, shuffle=True, random_state=42)
         all_pairs = kf.split(X)
 
         explicit_rmse = 0
@@ -192,7 +191,7 @@ def main(args):
             explicit_rmse += count / test_target.shape[0]
 
         avg_rmse = explicit_rmse / kf.n_splits
-        #print("=====================\nCVal of LR:",avg_rmse)
+        print("=====================\nCVal of LR:",avg_rmse)
 
         # ==================================================================================================
 
