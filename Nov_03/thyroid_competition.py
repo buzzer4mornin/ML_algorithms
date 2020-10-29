@@ -138,7 +138,7 @@ def main(args):
         print("=====Comparisons=====\nLDA improvement is", count, "more than LR out of", y_test.shape[0])
         # ==================================================================================================
 
-        '''# Prepare K-fold cross validation and find average RMSE
+        # Prepare K-fold cross validation and find average RMSE
         X = np.asarray(X)
         y = np.asarray(y)
         kf = KFold(n_splits=10, shuffle=True, random_state=42)
@@ -163,7 +163,7 @@ def main(args):
             explicit_rmse += count / test_target.shape[0]
 
         avg_rmse = explicit_rmse / kf.n_splits
-        print(avg_rmse)'''
+        print("=====================\nCVal of LR:",avg_rmse)
 
         # ==================================================================================================
 
