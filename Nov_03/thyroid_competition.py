@@ -118,10 +118,11 @@ def main(args):
         # ============================ Feature Importance [only 29 features] ============================
         importance = clf.coef_[0]
         # summarize feature importance
-        frs = []
+        frs, frs_val = [], []
         for i, v in enumerate(importance):
             if v !=0:
                 frs.append(i)
+                frs_val.append(v)
         X = pd.DataFrame(X)
         X = X[X.columns[frs]]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
@@ -135,9 +136,11 @@ def main(args):
         for i, j in zip(predicted_Y_lr, y_test):
             if i == j: count += 1
         print("Logistic Regression:", count / y_test.shape[0])
+
+        'Plot Importance Graph'
+        plt.bar([x for x in range(len(frs_val))], frs_val)
+        plt.show()
         # ===============================================================================================
-
-
         predicted_Y_lr = clf.predict(X_test)
         count = 0
         for i, j in zip(predicted_Y_lr, y_test):
