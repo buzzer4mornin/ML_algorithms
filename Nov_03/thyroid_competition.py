@@ -140,6 +140,8 @@ def main(args):
         'Plot Importance Graph'
         plt.bar([x for x in range(len(frs_val))], frs_val)
         plt.show()
+        # Most Important features: 1st + 22nd -> ~0.976 Accuracy
+
         # ===============================================================================================
         predicted_Y_lr = clf.predict(X_test)
         count = 0
