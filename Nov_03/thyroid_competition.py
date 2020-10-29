@@ -109,6 +109,7 @@ def main(args):
         Ensembling 10 Logistic Regressions with different features according to their importance
         Research Feature Importance Techniques (without Poly, just with original features
         Backward/Forward Elimination?? 
+        machinelearningmastery - https://machinelearningmastery.com/calculate-feature-importance-with-python/#:~:text=Feature%20importance%20refers%20to%20a,feature%20when%20making%20a%20prediction.
         """
         clf = LogisticRegression(random_state=args.seed, solver="liblinear",
                                  class_weight="balanced", tol=1e-2, penalty='l1').fit(X_train, y_train)
