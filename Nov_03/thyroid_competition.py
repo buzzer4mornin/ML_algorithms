@@ -24,6 +24,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
+import matplotlib.pyplot as plt
 
 class Dataset:
     """Thyroid Dataset.
@@ -114,11 +115,34 @@ def main(args):
         clf = LogisticRegression(random_state=args.seed, solver="liblinear",
                                  class_weight="balanced", tol=1e-2, penalty='l1').fit(X_train, y_train)
 
+        # ============================ Feature Importance [only 29 features] ============================
+        importance = clf.coef_[0]
+        # summarize feature importance
+        frs = []
+        for i, v in enumerate(importance):
+            if v !=0:
+                frs.append(i)
+        X = pd.DataFrame(X)
+        X = X[X.columns[frs]]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+                                                            random_state=args.seed, shuffle=True)
+        y_train = np.asarray(y_train).ravel()
+        y_test = np.asarray(y_test).ravel()
+        clf = LogisticRegression(random_state=args.seed, solver="liblinear",
+                                 class_weight="balanced", tol=1e-2, penalty='l1').fit(X_train, y_train)
         predicted_Y_lr = clf.predict(X_test)
         count = 0
         for i, j in zip(predicted_Y_lr, y_test):
             if i == j: count += 1
         print("Logistic Regression:", count / y_test.shape[0])
+        # ===============================================================================================
+
+
+        predicted_Y_lr = clf.predict(X_test)
+        count = 0
+        for i, j in zip(predicted_Y_lr, y_test):
+            if i == j: count += 1
+        #print("Logistic Regression:", count / y_test.shape[0])
 
         # =============================== Linear Discriminant Analysis ==================================
         # solver='lsqr', shrinkage=0.7 --> [0.940]
@@ -130,12 +154,12 @@ def main(args):
         count = 0
         for i, j in zip(predicted_Y_lda, y_test):
             if i == j: count += 1
-        print("Linear DiscriminantAnalysis:", count / y_test.shape[0])
+        #print("Linear DiscriminantAnalysis:", count / y_test.shape[0])
         # ================================== LDA vs LR comparison =======================================
         count = 0
         for i, j, k in zip(predicted_Y_lr, predicted_Y_lda, y_test):
             if i != k and j == k: count += 1
-        print("=====Comparisons=====\nLDA improvement is", count, "more than LR out of", y_test.shape[0])
+        #print("=====Comparisons=====\nLDA improvement is", count, "more than LR out of", y_test.shape[0])
         # ==================================================================================================
 
         # Prepare K-fold cross validation and find average RMSE
@@ -163,7 +187,7 @@ def main(args):
             explicit_rmse += count / test_target.shape[0]
 
         avg_rmse = explicit_rmse / kf.n_splits
-        print("=====================\nCVal of LR:",avg_rmse)
+        #print("=====================\nCVal of LR:",avg_rmse)
 
         # ==================================================================================================
 
