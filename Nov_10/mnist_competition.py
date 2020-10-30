@@ -12,6 +12,7 @@ import pickle
 import urllib.request
 import numpy as np
 import pandas as pd
+from sklearn import svm, metrics
 import time
 import matplotlib.pyplot as plt
 import seaborn as sn
@@ -55,6 +56,9 @@ parser.add_argument("--seed", default=42, type=int, help="Random seed")
 # For these and any other arguments you add, ReCodEx will keep your default value.
 parser.add_argument("--model_path", default="mnist_competition.model", type=str, help="Model path")
 
+""" LOGISTIC REGRESSION: https://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_logistic_regression_mnist.html"""
+"""SVM https://www.kaggle.com/nishan192/mnist-digit-recognition-using-svm"""
+
 def main(args):
     if args.predict is None:
         # We are training a model.
@@ -62,48 +66,50 @@ def main(args):
         train = Dataset()
 
         train_samples = 5000
-        t0 = time.time()
         X = pd.DataFrame(train.data)
         y = pd.DataFrame(train.target)
+        #print(y.value_counts())
+        print(X.shape)
 
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, train_size=0.2 , test_size=10000)
+        #TODO: split data
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+                                                            random_state=args.seed, shuffle=True)
+        y_train = np.asarray(y_train).ravel()
+        y_test = np.asarray(y_test).ravel()
 
+        #TODO: normalize data
         scaler = StandardScaler()
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
 
-        # Turn up tolerance for faster convergence
-        clf = LogisticRegression(
-            C=50. / train_samples, penalty='l1', solver='saga', tol=0.1
+        #help(LogisticRegression)
+
+
+
+        #TODO: Logistic Regression setup
+        '''clf = LogisticRegression(
+            C=50. / train_samples, penalty='l2', solver='saga', tol=0.01, class_weight='balanced'
         )
-
         clf.fit(X_train, y_train)
-
         sparsity = np.mean(clf.coef_ == 0) * 100
         score = clf.score(X_test, y_test)
         # print('Best C % .4f' % clf.C_)
         print("Sparsity with L1 penalty: %.2f%%" % sparsity)
+        print("Test score with L1 penalty: %.4f" % score)'''
+
+        #TODO: SVM setup
+        #classifier = svm.SVC(
+        #    C=1, kernel='rbf', degree=3, tol=0.1, class_weight='balanced', gamma=0.001
+        #)
+        classifier = svm.SVC(kernel='linear', C=10, gamma=0.001)
+
+        classifier.fit(X_train, y_train)
+        # Now predict the value of the digit on the second half:
+        predicted = classifier.predict(X_test)
+        score = classifier.score(X_test, y_test)
         print("Test score with L1 penalty: %.4f" % score)
 
-        coef = clf.coef_.copy()
-        plt.figure(figsize=(10, 5))
-        scale = np.abs(coef).max()
-        for i in range(10):
-            l1_plot = plt.subplot(2, 5, i + 1)
-            l1_plot.imshow(coef[i].reshape(28, 28), interpolation='nearest',
-                           cmap=plt.cm.RdBu, vmin=-scale, vmax=scale)
-            l1_plot.set_xticks(())
-            l1_plot.set_yticks(())
-            l1_plot.set_xlabel('Class %i' % i)
-        plt.suptitle('Classification vector for...')
-
-        run_time = time.time() - t0
-        print('Example run in %.3f s' % run_time)
-        plt.show()
-
-        """https://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_logistic_regression_mnist.html"""
 
 
         # TODO: Train a model on the given dataset and store it in `model`.
