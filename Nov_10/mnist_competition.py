@@ -19,7 +19,9 @@ import seaborn as sn
 import sklearn
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import Lasso, Ridge
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
@@ -56,8 +58,11 @@ parser.add_argument("--seed", default=42, type=int, help="Random seed")
 # For these and any other arguments you add, ReCodEx will keep your default value.
 parser.add_argument("--model_path", default="mnist_competition.model", type=str, help="Model path")
 
-""" LOGISTIC REGRESSION: https://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_logistic_regression_mnist.html"""
-"""SVM https://www.kaggle.com/nishan192/mnist-digit-recognition-using-svm"""
+""" 
+LOGISTIC REGRESSION: https://scikit-learn.org/stable/auto_examples/linear_model/plot_sparse_logistic_regression_mnist.html
+SVM https://www.kaggle.com/nishan192/mnist-digit-recognition-using-svm
+Random Forest https://towardsdatascience.com/improving-accuracy-on-mnist-using-data-augmentation-b5c38eb5a903
+"""
 
 def main(args):
     if args.predict is None:
@@ -99,7 +104,7 @@ def main(args):
         print("Test score with L1 penalty: %.4f" % score)'''
 
         #TODO: SVM setup
-        #classifier = svm.SVC(
+        '''#classifier = svm.SVC(
         #    C=1, kernel='rbf', degree=3, tol=0.1, class_weight='balanced', gamma=0.001
         #)
         classifier = svm.SVC(kernel='linear', C=10, gamma=0.001)
@@ -108,8 +113,18 @@ def main(args):
         # Now predict the value of the digit on the second half:
         predicted = classifier.predict(X_test)
         score = classifier.score(X_test, y_test)
-        print("Test score with L1 penalty: %.4f" % score)
+        print("Test score with L1 penalty: %.4f" % score)'''
 
+
+        #TODO: Random Forest
+        # Training on the existing dataset
+        rf_clf = RandomForestClassifier(random_state=42)
+        rf_clf.fit(X_train, y_train)
+
+        # Evaluating the model
+        y_pred = rf_clf.predict(X_test)
+        score = accuracy_score(y_test, y_pred)
+        print("Accuracy score after training on existing dataset", score)
 
 
         # TODO: Train a model on the given dataset and store it in `model`.
