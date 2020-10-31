@@ -13,23 +13,17 @@ import urllib.request
 import numpy as np
 import pandas as pd
 from sklearn import svm, metrics
-import time
 import matplotlib.pyplot as plt
-import seaborn as sn
 import sklearn
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import Lasso, Ridge
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
-import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.utils import check_random_state
 
 class Dataset:
     """MNIST Dataset.
@@ -74,21 +68,27 @@ def main(args):
         X = pd.DataFrame(train.data)
         y = pd.DataFrame(train.target)
         #print(y.value_counts())
-        print(X.shape)
+        #print(X.shape)
 
 
         #TODO: split data
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
-                                                            random_state=args.seed, shuffle=True)
-        y_train = np.asarray(y_train).ravel()
-        y_test = np.asarray(y_test).ravel()
+        #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+        #                                                    random_state=args.seed, shuffle=True)
+        #y_train = np.asarray(y_train).ravel()
+        #y_test = np.asarray(y_test).ravel()
+
+        y = np.asarray(y).ravel()                                #++++
 
         #TODO: normalize data
         scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
+        #X_train = scaler.fit_transform(X_train)
+        #X_test = scaler.transform(X_test)
 
-        #help(LogisticRegression)
+        X = scaler.fit_transform(X)                             #+++++
+
+
+        with lzma.open("scaler.model", "wb") as model_file:
+            pickle.dump(scaler, model_file)
 
 
 
@@ -117,18 +117,17 @@ def main(args):
 
 
         #TODO: Random Forest
-        # Training on the existing dataset
-        rf_clf = RandomForestClassifier(random_state=42)
-        rf_clf.fit(X_train, y_train)
+        rf_clf = RandomForestClassifier(n_estimators=100, random_state=42)
+        rf_clf.fit(X, y)                    #+++++
 
         # Evaluating the model
-        y_pred = rf_clf.predict(X_test)
-        score = accuracy_score(y_test, y_pred)
-        print("Accuracy score after training on existing dataset", score)
+        #y_pred = rf_clf.predict(X_test)
+        #score = accuracy_score(y_test, y_pred)
+        #print("Accuracy score after training on existing dataset", score)
 
 
         # TODO: Train a model on the given dataset and store it in `model`.
-        model = None
+        model = rf_clf
 
         # If you trained one or more MLPs, you can use the following code
         # to compress it significantly (approximately 12 times). The snippet
@@ -145,11 +144,18 @@ def main(args):
         # Use the model and return test set predictions, as either a Python list or a NumPy array.
         test = Dataset(args.predict)
 
+        X = pd.DataFrame(test.data)
+
+        with lzma.open("scaler.model", "rb") as model_file:
+            scaler = pickle.load(model_file)
+
+        X = scaler.transform(X)
+
         with lzma.open(args.model_path, "rb") as model_file:
             model = pickle.load(model_file)
 
         # TODO: Generate `predictions` with the test set predictions.
-        predictions = None
+        predictions = np.array(model.predict(X))
 
         return predictions
 
