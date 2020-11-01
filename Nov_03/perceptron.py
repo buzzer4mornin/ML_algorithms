@@ -45,8 +45,9 @@ def main(args):
         # correctly classified, set `done=True`, otherwise set `done=False`.
         done = True
         for i in permutation:
-            predicted_y = np.dot(data[i], weights.T)
-            if predicted_y * target[i] <= 0:
+            #predicted_y = np.dot(data[i], weights.T)
+            #if predicted_y * target[i] <= 0:
+            if target[i] * (weights.T @ data[i]) <= 0:
                 weights = weights + target[i] * data[i]
                 done = False
 
