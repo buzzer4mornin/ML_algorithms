@@ -10,6 +10,7 @@ import sys
 import numpy as np
 import sklearn.datasets
 
+
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
 parser.add_argument("--data_size", default=100, type=int, help="Data size")
