@@ -6,6 +6,7 @@ import urllib.request
 
 import numpy as np
 import pandas as pd
+import scipy
 import sklearn.metrics
 import sklearn.model_selection
 import sklearn.preprocessing
@@ -55,104 +56,46 @@ def main(args):
         expZ = np.exp(x - np.max(x))
         return expZ / expZ.sum(axis=0, keepdims=True)
 
-    '''def Lp_norm(A, B, p):  # A vector B matrix
-        if p == 1:
-            norm = np.sum(np.absolute(A - B), axis=1)
-        elif p == 2:
-            norm = (A - B) * (A - B)
-            norm = np.sum(norm, axis=1)
-            norm = np.sqrt(norm)
-        elif p == 3:
-            norm = np.absolute(A - B) * (A - B) * (A - B)
-            norm = np.cbrt(np.sum(norm, axis=1))
-        return norm  # vraci vektor vzdalenosti vektoru A od matice B'''
-
-    def distance(a, b, p):
-        d = np.linalg.norm((b - a), ord=p, axis=1)
-        return d
-
-    def minkowski_distance(a, b, p):
-        distance = 0
-        for d in range(len(a) - 1):
-            distance += abs(a[d] - b[d]) ** p
-        distance = distance ** (1 / p)
-        return distance
-
     def get_neighbors(train_data, train_target, test_row, k, p, weight_mode):
-        '''distances = list()
-        for x, y in zip(train_data, train_target):
-            dist = minkowski_distance(test_row, x, p)
-            distances.append((y, dist))
-        distances.sort(key=lambda tup: tup[1])'''
-
-        '''d = list()
-        for x in train_data:
-            d.append(minkowski_distance(test_row, x, p))'''
-
-        d = list(distance(test_row, train_data, p))
-
-
+        #d = list()
+        copy_t = list(train_target)
+        #for x in train_data:
+            #d.append(scipy.spatial.distance.minkowski(test_row, x, p))
+        d = list(np.linalg.norm(test_row - train_data, ord=p, axis=-1))
         neighbors = list()
         neighbors_w = list()
         for i in range(k):
             index = np.argmin(d)
-            a = list(train_target).pop(index)
+            a = copy_t.pop(index)
             b = d.pop(index)
             neighbors.append(a)
             neighbors_w.append(b)
-            #neighbors.append(distances[i][0])
-            #neighbors_w.append(distances[i][1])
         if weight_mode == "uniform":
             neighbors_w = [1 for _ in range(len(neighbors_w))]
         elif weight_mode == "inverse":
             neighbors_w = [1 / k for k in neighbors_w]
         elif weight_mode == "softmax":
+            #neighbors_w = (-1) * neighbors_w
+            #for i in range(list(neighbors_w)):
+            #    neighbors_w[i] = (-1) * int(neighbors_w[i])
+            neighbors_w = [element * (-1) for element in neighbors_w]
+            print(neighbors_w)
             neighbors_w = stablesoftmax(neighbors_w)
         return np.array(neighbors), np.array(neighbors_w)
 
     def predict_classification(train_data, train_target, test_row, num_neighbors, p, weight_mode):
         neighbors, neighbors_w = get_neighbors(train_data, train_target, test_row, num_neighbors, p, weight_mode)
+
         result = weighted_mode(neighbors, neighbors_w)
         prediction = int(result[0])
-        print(prediction)
         return prediction
 
     # TODO: Generate `test_predictions` with classes predicted for `test_data`.
-    #
-    # Find `args.k` nearest neighbors, choosing the ones with smallest train_data
-    # indices in case of ties. Use the most frequent class (optionally weighted
-    # by a given scheme described below) as prediction, again using the one with
-    # smaller index when there are multiple classes with the same frequency.
-    #
-    # Use L_p norm for a given p (1, 2, 3) to measure distances.
-    #
-    # The weighting can be:
-    # - "uniform": all nearest neighbors have the same weight
-    # - "inverse": `1/distances` is used as weights
-    # - "softmax": `softmax(-distances)` is uses as weights
-    #
-    # If you want to plot misclassified examples, you need to also fill `test_neighbors`
-    # with indices of nearest neighbors; but it is not needed for passing in ReCodEx.
     test_predictions = []
     for test in test_data:
         prediction = predict_classification(train_data, train_target, test, args.k, args.p, args.weights)
         test_predictions.append(prediction)
-
     accuracy = sklearn.metrics.accuracy_score(test_target, test_predictions)
-
-    '''if args.plot:
-        import matplotlib.pyplot as plt
-        examples = [[] for _ in range(10)]
-        for i in range(len(test_predictions)):
-            if test_predictions[i] != test_target[i] and not examples[test_target[i]]:
-                examples[test_target[i]] = [test_data[i], *train_data[test_neighbors[i]]]
-        examples = [[img.reshape(28, 28) for img in example] for example in examples if example]
-        examples = [[example[0]] + [np.zeros_like(example[0])] + example[1:] for example in examples]
-        plt.imshow(np.concatenate([np.concatenate(example, axis=1) for example in examples], axis=0), cmap="gray")
-        plt.gca().get_xaxis().set_visible(False)
-        plt.gca().get_yaxis().set_visible(False)
-        if args.plot is True: plt.show()
-        else: plt.savefig(args.plot, transparent=True, bbox_inches="tight")'''
 
     return accuracy
 
