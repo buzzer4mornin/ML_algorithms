@@ -59,8 +59,8 @@ def main(args):
         #y_test = (" ".join(y_test)).lower().split()
 
 
-        y_train = (" ".join(y_train)).lower().split()
-        X_train = (" ".join(X_train)).lower().split()
+        y_train = (" ".join(y_train)).split()
+        X_train = (" ".join(X_train)).split()
 
 
         window_length = len(max(data_split, key=len)) + 1
@@ -317,19 +317,17 @@ def main(args):
             word_binaries = [input_one_hot_encoder(ord(l)-97) if (l in alpha and l not in symbols) else input_one_hot_encoder(switcher.get(l)) if l in symbols else input_default for l in list(word)]
             return np.array(word_binaries).flatten()
 
-
-
         window_length = 21
         reformat_to_window = lambda w: w + ' ' * (window_length - len(w))
 
         data_formated = [reformat_to_window(w) for w in test]
-        data_formated_copy = [reformat_to_window(w) for w in test_copy]
+        #data_formated_copy = [reformat_to_window(w) for w in test_copy]
 
         for i in range(len(data_formated)):
             data_formated[i] = encode_window(data_formated[i])
 
-        for i in range(len(data_formated_copy)):
-            data_formated_copy[i] = encode_window(data_formated_copy[i])
+        #for i in range(len(data_formated_copy)):
+        #    data_formated_copy[i] = encode_window(data_formated_copy[i])
 
         def output_decoder(matrix):
             return [1 if x > 0.85 else 0 for x in matrix]

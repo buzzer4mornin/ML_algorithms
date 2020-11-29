@@ -47,18 +47,21 @@ def main(args):
     if args.predict is None:
         np.random.seed(args.seed)
         train = Dataset()
-        data_split = train.data.lower().split()  # TODO: only .lower().split()
-        target_split = train.target.lower().split()  # TODO: only .lower().split()
+        data_split = train.data.lower().split()             #TODO: only .lower().split()
+        target_split = train.target.lower().split()         #TODO: only .lower().split()
+
 
         X_train, X_test, y_train, y_test = train_test_split(data_split, target_split, test_size=0.2,
                                                             random_state=args.seed, shuffle=True)
 
         X_test_copy = X_test
         X_test = (" ".join(X_test)).lower().split()
-        # y_test = (" ".join(y_test)).lower().split()
+        #y_test = (" ".join(y_test)).lower().split()
 
-        y_train = (" ".join(y_train)).lower().split()
-        X_train = (" ".join(X_train)).lower().split()
+
+        y_train = (" ".join(y_train)).split()
+        X_train = (" ".join(X_train)).split()
+
 
         window_length = len(max(data_split, key=len)) + 1
         reformat_to_window = lambda w: w + ' ' * (window_length - len(w))
@@ -66,8 +69,8 @@ def main(args):
         window_length_t = 23
         reformat_to_window_t = lambda w: w + ' ' * (window_length_t - len(w))
 
-        data_formated = [reformat_to_window(w) for w in data_split]  # TODO: X_train data_split
-        target_formated = [reformat_to_window_t(w) for w in target_split]  # TODO: y_train  target_split
+        data_formated = [reformat_to_window(w) for w in data_split]      #TODO: X_train data_split
+        target_formated = [reformat_to_window_t(w) for w in target_split]  #TODO: y_train  target_split
 
         switcher = {
             "á": 26,
@@ -112,11 +115,11 @@ def main(args):
             "z": "ž"
         }
 
-        alpha = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
-                 "u", "v", "w", "x", "y", "z"]
-        symbols = ["á", "č", "ď", "é", "ě", "í", "ň", "ó", "ř", "š", "ť", "ú", "ů", "ý", "ž", ",", ".", "-", "!", "?",
-                   '"', "("]
-        diacred = ["á", "č", "ď", "é", "ě", "í", "ň", "ó", "ř", "š", "ť", "ú", "ů", "ý", "ž"]
+
+        alpha = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+        symbols = ["á","č","ď","é","ě","í","ň","ó","ř","š","ť","ú","ů","ý","ž",",",".","-","!","?",'"',"("]
+        diacred = ["á","č","ď","é","ě","í","ň","ó","ř","š","ť","ú","ů","ý","ž"]
+
 
         '''u1 = False
         u2 = False
@@ -158,10 +161,9 @@ def main(args):
             return zeros
 
         def encode_window(word):
-            word_binaries = [
-                input_one_hot_encoder(ord(l) - 97) if (l in alpha and l not in symbols) else input_one_hot_encoder(
-                    switcher.get(l)) if l in symbols else input_default for l in list(word)]
+            word_binaries = [input_one_hot_encoder(ord(l)-97) if (l in alpha and l not in symbols) else input_one_hot_encoder(switcher.get(l)) if l in symbols else input_default for l in list(word)]
             return np.array(word_binaries).flatten()
+
 
         def encode_window_output(word):
             indexes = [1 if l in diacred else 0 for l in list(word)]
@@ -178,14 +180,16 @@ def main(args):
                 indexes[22] = 1
             return np.array(indexes).flatten()
 
+
         for i in range(len(data_formated)):
             data_formated[i] = encode_window(data_formated[i])
 
         for i in range(len(target_formated)):
             target_formated[i] = encode_window_output(target_formated[i])
 
+
         network = MLPClassifier(hidden_layer_sizes=(500,), activation='relu', solver='adam', alpha=0.0001,
-                                batch_size=300, learning_rate='adaptive', learning_rate_init=0.001, max_iter=140,
+                                batch_size=300, learning_rate='adaptive', learning_rate_init=0.001, max_iter=200,
                                 shuffle=True, random_state=args.seed, tol=1e-5, verbose=True, early_stopping=False)
 
         model = network.fit(data_formated, target_formated)
@@ -203,11 +207,12 @@ def main(args):
         def getindices(s):
             return [i for i, c in enumerate(s) if c.isupper()]
 
-        # TODO: X_test preparation
+        #TODO: X_test preparation
         data_formated_x_test = [reformat_to_window(w) for w in X_test]
 
         for i in range(len(data_formated_x_test)):
             data_formated_x_test[i] = encode_window(data_formated_x_test[i])
+
 
         count = 0
         for i in range(len(X_test_copy)):
@@ -216,7 +221,7 @@ def main(args):
 
             final = ""
             for k in range(len(X_test_copy[i])):
-                if predict[k] == 1:
+                 if predict[k] == 1:
                     letter = X_test[i][k]
                     if letter == "u":
                         if predict[-2] == 1:
@@ -235,8 +240,8 @@ def main(args):
                         final += convert.upper()
                     else:
                         final += convert
-                else:
-                    final += X_test_copy[i][k]
+                 else:
+                     final += X_test_copy[i][k]
 
             if (final == y_test[i]):
                 print(final, y_test[i])
@@ -290,11 +295,10 @@ def main(args):
             "z": "ž"
         }
 
-        alpha = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
-                 "u", "v", "w", "x", "y", "z"]
-        symbols = ["á", "č", "ď", "é", "ě", "í", "ň", "ó", "ř", "š", "ť", "ú", "ů", "ý", "ž", ",", ".", "-", "!", "?",
-                   '"', "("]
-        diacred = ["á", "č", "ď", "é", "ě", "í", "ň", "ó", "ř", "š", "ť", "ú", "ů", "ý", "ž"]
+
+        alpha = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+        symbols = ["á","č","ď","é","ě","í","ň","ó","ř","š","ť","ú","ů","ý","ž",",",".","-","!","?",'"',"("]
+        diacred = ["á","č","ď","é","ě","í","ň","ó","ř","š","ť","ú","ů","ý","ž"]
 
         # Use the model and return test set predictions, as either a Python list or a NumPy array.
         test = Dataset(args.predict)
@@ -303,6 +307,8 @@ def main(args):
 
         with lzma.open(args.model_path, "rb") as model_file:
             model = pickle.load(model_file)
+
+        input_default = np.zeros(48, dtype=int)
 
         def input_one_hot_encoder(l):
             zeros = np.zeros(48, dtype=int)
@@ -317,12 +323,17 @@ def main(args):
         reformat_to_window = lambda w: w + ' ' * (window_length - len(w))
 
         data_formated = [reformat_to_window(w) for w in test]
+        #data_formated_copy = [reformat_to_window(w) for w in test_copy]
 
         for i in range(len(data_formated)):
             data_formated[i] = encode_window(data_formated[i])
 
+        #for i in range(len(data_formated_copy)):
+        #    data_formated_copy[i] = encode_window(data_formated_copy[i])
+
         def output_decoder(matrix):
             return [1 if x > 0.85 else 0 for x in matrix]
+
 
         predictions = []
         for i in range(len(test_copy)):
@@ -331,7 +342,7 @@ def main(args):
 
             final = ""
             for k in range(len(test_copy[i])):
-                if predict[k] == 1:
+                 if predict[k] == 1:
                     letter = test[i][k]
                     if letter == "u":
                         if predict[-2] == 1:
@@ -350,8 +361,8 @@ def main(args):
                         final += convert.upper()
                     else:
                         final += convert
-                else:
-                    final += test_copy[i][k]
+                 else:
+                     final += test_copy[i][k]
             predictions.append(final)
 
         predictions = " ".join(predictions)
