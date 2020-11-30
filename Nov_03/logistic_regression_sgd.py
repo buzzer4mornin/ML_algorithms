@@ -45,7 +45,8 @@ def main(args):
         )
 
     # Generate initial linear regression weights
-    weights = generator.uniform(size=train_data.shape[1])
+    #weights = generator.uniform(size=train_data.shape[1])
+    weights = np.zeros(train_data.shape[1])
 
     for iteration in range(args.iterations):
         permutation = generator.permutation(train_data.shape[0])
@@ -57,6 +58,7 @@ def main(args):
         for i in permutation:
             gradient += (sigmoid(np.dot(train_data[i], weights)) - train_target[i]) * train_data[i] # (train_data[i] @ weights - train_target[i]) * train_data[i]
             gradient_components += 1
+            print(weights)
             if gradient_components == args.batch_size:
                 weights -= args.learning_rate * gradient / gradient_components
                 gradient, gradient_components = 0, 0

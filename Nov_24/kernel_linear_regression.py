@@ -30,8 +30,10 @@ def main(args):
     train_data = np.linspace(-1, 1, args.data_size)
     train_targets = np.sin(5 * train_data) + generator.normal(scale=0.25, size=args.data_size) + 1
 
+
     test_data = np.linspace(-1.2, 1.2, 2 * args.data_size)
     test_targets = np.sin(5 * test_data) + 1
+
 
 
     betas = np.zeros(args.data_size)
@@ -76,24 +78,32 @@ def main(args):
             sums = 0
             for j in permutation:
                 sums += betas[j]*kernel(train_data[i], train_data[j])[0]
-            bi = betas[i] + args.learning_rate * (train_targets[i] - sums - bias) / args.batch_size
+            bi = betas[i] + args.learning_rate * (train_targets[i] - sums - bias) / args.batch_size - args.l2 * args.learning_rate * betas[i]
             bi_arr.append(bi)
             gradient_components += 1
             if gradient_components == args.batch_size:
+                arr = []
                 for k in range(len(bi_arr) - args.batch_size, len(bi_arr)):
                     betas[permutation[k]] = bi_arr[k]
+                    arr.append(permutation[k])
+                for z in permutation:
+                    if z not in arr:
+                        betas[z] = betas[z] - args.l2 * args.learning_rate * betas[z]
                 gradient_components = 0
         assert gradient_components == 0
 
+
         # TODO: Append RMSE on training and testing data to `train_rmses` and
         # `test_rmses` after the iteration.
+
+        #print(len(train_data), len(test_data))
+
         my_test = []
         for i in range(len(test_data)):
             sums = 0
             for j in range(len(betas)):
-                sums += betas[j] * kernel(test_data[i], test_data[j])[0]
+                sums += betas[j] * kernel(test_data[i], train_data[j])[0]
             my_test.append(sums + bias)
-
 
         my_train = []
         for i in range(len(train_data)):
@@ -105,25 +115,9 @@ def main(args):
         test_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(np.array(test_targets), np.array(my_test))))
         train_rmses.append(np.sqrt(sklearn.metrics.mean_squared_error(np.array(train_targets), np.array(my_train))))
 
-
-
         if (iteration + 1) % 10 == 0:
             print("Iteration {}, train RMSE {:.2f}, test RMSE {:.2f}".format(
                 iteration + 1, train_rmses[-1], test_rmses[-1]))
-
-    '''if args.plot:
-        import matplotlib.pyplot as plt
-        # If you want the plotting to work (not required for ReCodEx), compute the `test_predictions`.
-        test_predictions = my_test
-
-        plt.plot(train_data, train_targets, "bo", label="Train target")
-        plt.plot(test_data, test_targets, "ro", label="Test target")
-        plt.plot(test_data, test_predictions, "g-", label="Predictions")
-        plt.legend()
-        if args.plot is True:
-            plt.show()
-        else:
-            plt.savefig(args.plot, transparent=True, bbox_inches="tight")'''
 
     return train_rmses, test_rmses
 

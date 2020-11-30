@@ -22,13 +22,10 @@ for i in range(len(test_data)):
         sums += betas[j] * kernel(test_data[i], test_data[j])[0]
     my_test.append(sums)'''
 
-'''if args.plot:
-    # If you want the plotting to work (not required for ReCodEx), compute the `test_predictions`.
-    test_predictions = my_test
 
-    plt.plot(train_data, train_targets, "bo", label="Train targets")
-    plt.plot(test_data, test_targets, "ro", label="Test targets")
-    plt.plot(test_data, test_predictions, "g-", label="Predictions")
-    plt.legend()
-    if args.plot is True: plt.show()
-    else: plt.savefig(args.plot, transparent=True, bbox_inches="tight")'''
+gradient_components = 0
+for i in range(10):
+    print(i)
+    gradient_components += 1
+    if gradient_components == 5:
+        print(100+i)

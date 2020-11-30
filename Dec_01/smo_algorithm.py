@@ -26,7 +26,8 @@ def kernel(args, x, y):
     # TODO: As in `kernel_linear_regression`, We consider the following `args.kernel`s:
     # - "poly": K(x, y; degree, gamma) = (gamma * x^T y + 1) ^ degree
     # - "rbf": K(x, y; gamma) = exp^{- gamma * ||x - y||^2}
-    raise NotImplementedError()
+    return [(args.kernel_gamma * np.dot(x, y) + 1) ** args.kernel_degree if args.kernel == "poly"
+                else np.exp(-1 * args.kernel_gamma * ((x - y) @ (x - y)))]
 
 # We implement the SMO algorithm as a separate method, so we can use
 # it in the svm_multiclass assignment too.
