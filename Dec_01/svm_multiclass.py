@@ -22,8 +22,8 @@ parser.add_argument("--tolerance", default=1e-4, type=float, help="Default toler
 # If you add more arguments, ReCodEx will keep them with your default values.
 
 def kernel(args, x, y):
-    # TODO: Use the kernel from the smo_algorithm assignment.
-    raise NotImplementedError()
+    return [(args.kernel_gamma * np.dot(x, y) + 1) ** args.kernel_degree if args.kernel == "poly"
+            else np.exp(-1 * args.kernel_gamma * ((x - y) @ (x - y)))]
 
 def smo(args, train_data, train_target, test_data, test_target):
     # TODO: Use the SMO algorithm from the smo_algorithm assignment.
