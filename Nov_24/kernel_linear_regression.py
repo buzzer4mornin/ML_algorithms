@@ -58,7 +58,7 @@ def main(args):
 
     def kernel (x1, x2):
         return [(args.kernel_gamma * np.dot(x1, x2) + 1) ** args.kernel_degree if args.kernel == "poly"
-                else np.exp(-1 * args.kernel_gamma * np.abs(x1 - x2) ** 2)]
+                else np.exp(-1 * args.kernel_gamma * ((x1 - x2) @ (x1 - x2)))]
 
     # After each iteration, compute RMSE both on training and testing data.
     train_rmses, test_rmses = [], []
