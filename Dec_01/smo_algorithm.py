@@ -14,13 +14,11 @@ parser.add_argument("--kernel", default="poly", type=str, help="Kernel type [pol
 parser.add_argument("--kernel_degree", default=1, type=int, help="Degree for poly kernel")
 parser.add_argument("--kernel_gamma", default=1.0, type=float, help="Gamma for poly and rbf kernel")
 parser.add_argument("--max_iterations", default=1000, type=int, help="Maximum number of iterations to perform")
-parser.add_argument("--max_passes_without_as_changing", default=10, type=int,
-                    help="Number of passes without changes to stop after")
+parser.add_argument("--max_passes_without_as_changing", default=10, type=int, help="Number of passes without changes to stop after")
 parser.add_argument("--plot", default=False, const=True, nargs="?", type=str, help="Plot the predictions")
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")
-parser.add_argument("--test_size", default=0.5, type=lambda x: int(x) if x.isdigit() else float(x),
-                    help="Test set size")
+parser.add_argument("--test_size", default=0.5, type=lambda x: int(x) if x.isdigit() else float(x), help="Test set size")
 parser.add_argument("--tolerance", default=1e-4, type=float, help="Default tolerance for KKT conditions")
 
 
