@@ -114,7 +114,6 @@ def main(args):
     test_accuracy = sklearn.metrics.accuracy_score(my_test, test_target)
 
     return test_accuracy
-
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     test_accuracy = main(args)
