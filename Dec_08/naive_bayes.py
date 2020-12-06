@@ -25,7 +25,8 @@ def main(args):
     train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(
         data, target, test_size=args.test_size, random_state=args.seed)
 
-    print(train_data.shape[1])
+    #print(train_data.shape[1])
+    mean_var = np.empty((train_data.shape[1], 2), dtype=float)
 
 
     # TODO: Fit the naive Bayes classifier on the train data.
@@ -35,7 +36,15 @@ def main(args):
     #   features. For variance estimation use
     #     1/N * \sum_x (x - mean)^2
     #   and additionally increase all estimated variances by `args.alpha`.
-    #
+
+
+
+    for i in range(train_data.shape[1]):
+        print(train_data.T[i])
+
+
+
+
     #   During prediction, compute probability density function of a Gaussian
     #   distribution using `scipy.stats.norm`, which offers `pdf` and `logpdf`
     #   methods, among others.
