@@ -1,6 +1,6 @@
 import numpy as np
 
 
-a = [-1111, -5, -1]
+a = np.array([-1111, 7, -1])
 
-print(np.argmax(a))
+print(a)

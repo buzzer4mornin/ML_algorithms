@@ -79,7 +79,12 @@ def main(args):
                 n_total = np.sum(train_data[train_target == k].T.flatten())
                 ni = np.sum(train_data[train_target == k].T[i])
                 pi = (ni + args.alpha)/(n_total + args.alpha * train_data.shape[1])
-                fitted[i] = [999, np.log(pi)]
+                fitted[i] = [999, pi]
+            #TODO: bernoulli
+            elif args.naive_bayes_type == "bernoulli":
+                n_total = train_data[train_target == k].shape[0]
+                ni = train_data[train_target == k].T[i]
+
         class_fitted.append(fitted)
         fitted = np.empty((train_data.shape[1], 2), dtype=float)
         class_prob.append(len(train_target[train_target == k]) / len(train_target))
@@ -95,8 +100,11 @@ def main(args):
                     p_xi_k = norm.logpdf(xi, class_fitted[k][m][0], class_fitted[k][m][1])
                     p += p_xi_k
                 elif args.naive_bayes_type == "multinomial":
-                    p_xi_k = xi * class_fitted[k][m][1]
+                    p_xi_k = xi * np.log(class_fitted[k][m][1])
                     p += p_xi_k
+                #TODO: bernoulli
+                #elif args.naive_bayes_type == "bernoulli":
+                #    p_xi_k = xi * np.log(class_fitted[k][m][1]/(1 - class_fitted[k][m][1]))
             probs.append(p)
         # print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
         my_test.append(np.argmax(probs))
