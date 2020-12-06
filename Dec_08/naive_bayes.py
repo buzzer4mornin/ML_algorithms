@@ -26,6 +26,7 @@ def main(args):
         data, target, test_size=args.test_size, random_state=args.seed)
 
 
+
     # TODO: Fit the naive Bayes classifier on the train data.
     #
     # The `args.naive_bayes_type` can be one of:
@@ -99,6 +100,7 @@ def main(args):
             probs.append(p)
         # print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
         my_test.append(np.argmax(probs))
+
     #   During prediction, compute probability density function of a Gaussian
     #   distribution using `scipy.stats.norm`, which offers `pdf` and `logpdf`
     #   methods, among others.
