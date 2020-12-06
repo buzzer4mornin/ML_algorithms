@@ -36,7 +36,7 @@ def main(args):
     class_mean_var = []
     class_prob = []
 
-    mean_var = np.empty((train_data.shape[1], 2), dtype=float)
+    '''mean_var = np.empty((train_data.shape[1], 2), dtype=float)
     for k in range(len(np.unique(train_target))):
         for i in range(train_data.shape[1]):
             mean = np.mean(train_data[train_target == k].T[i])
@@ -62,7 +62,43 @@ def main(args):
             probs.append(p)
         #print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
         my_test.append(np.argmax(probs))
-    print(sklearn.metrics.accuracy_score(my_test, test_target))
+    print(sklearn.metrics.accuracy_score(my_test, test_target))'''
+
+    print(train_data[train_target == 3])
+
+    '''mean_var = np.empty((train_data.shape[1], 2), dtype=float)
+    for k in range(len(np.unique(train_target))):
+        for i in range(train_data.shape[1]):
+            if args.naive_bayes_type == "gaussian":
+                mean = np.mean(train_data[train_target == k].T[i])
+                var = 0
+                for xi in train_data[train_target == k].T[i]:
+                    var += (xi - mean) ** 2
+                var = var / len(train_data[train_target == k].T[i])
+                mean_var[i] = [mean, np.sqrt(var + args.alpha)]
+            elif args.naive_bayes_type == "multinomial":
+                
+        if args.naive_bayes_type == "gaussian":
+            class_mean_var.append(mean_var)
+            mean_var = np.empty((train_data.shape[1], 2), dtype=float)
+            class_prob.append(len(train_target[train_target == k]) / len(train_target))
+
+    my_test = []
+    for u, row in enumerate(test_data):
+        probs = []
+        for k in range(len(np.unique(train_target))):
+            p = np.log(class_prob[k])
+            for m in range(len(row)):
+                xi = row[m]
+                p_xi_k = norm.logpdf(xi, class_mean_var[k][m][0], class_mean_var[k][m][1])
+                p += p_xi_k
+            probs.append(p)
+        # print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
+        my_test.append(np.argmax(probs))
+    print(sklearn.metrics.accuracy_score(my_test, test_target))'''
+
+
+
 
 
 
