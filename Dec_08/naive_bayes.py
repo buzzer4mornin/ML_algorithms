@@ -84,10 +84,14 @@ def main(args):
             elif args.naive_bayes_type == "bernoulli":
                 n_total = train_data[train_target == k].shape[0]
                 ni = train_data[train_target == k].T[i]
-
+                print(ni)
+                ni = len(ni[ni > 0])
+                pi = (ni + args.alpha)/(n_total + 2 * args.alpha)
+                fitted[i] = [999, pi]
         class_fitted.append(fitted)
         fitted = np.empty((train_data.shape[1], 2), dtype=float)
         class_prob.append(len(train_target[train_target == k]) / len(train_target))
+
 
     my_test = []
     for u, row in enumerate(test_data):
@@ -103,8 +107,9 @@ def main(args):
                     p_xi_k = xi * np.log(class_fitted[k][m][1])
                     p += p_xi_k
                 #TODO: bernoulli
-                #elif args.naive_bayes_type == "bernoulli":
-                #    p_xi_k = xi * np.log(class_fitted[k][m][1]/(1 - class_fitted[k][m][1]))
+                elif args.naive_bayes_type == "bernoulli":
+                    p_xi_k = xi * np.log(class_fitted[k][m][1]/(1 - class_fitted[k][m][1])) + np.log(1 - class_fitted[k][m][1])
+                    p += p_xi_k
             probs.append(p)
         # print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
         my_test.append(np.argmax(probs))
