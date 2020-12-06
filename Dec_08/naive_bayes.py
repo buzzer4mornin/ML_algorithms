@@ -33,7 +33,7 @@ def main(args):
     #   features. For variance estimation use
     #     1/N * \sum_x (x - mean)^2
     #   and additionally increase all estimated variances by `args.alpha`.
-    class_mean_var = []
+    class_fitted = []
     class_prob = []
 
     '''mean_var = np.empty((train_data.shape[1], 2), dtype=float)
@@ -64,9 +64,7 @@ def main(args):
         my_test.append(np.argmax(probs))
     print(sklearn.metrics.accuracy_score(my_test, test_target))'''
 
-    print(train_data[train_target == 3])
-
-    '''mean_var = np.empty((train_data.shape[1], 2), dtype=float)
+    fitted = np.empty((train_data.shape[1], 2), dtype=float)
     for k in range(len(np.unique(train_target))):
         for i in range(train_data.shape[1]):
             if args.naive_bayes_type == "gaussian":
@@ -75,13 +73,15 @@ def main(args):
                 for xi in train_data[train_target == k].T[i]:
                     var += (xi - mean) ** 2
                 var = var / len(train_data[train_target == k].T[i])
-                mean_var[i] = [mean, np.sqrt(var + args.alpha)]
+                fitted[i] = [mean, np.sqrt(var + args.alpha)]
             elif args.naive_bayes_type == "multinomial":
-                
-        if args.naive_bayes_type == "gaussian":
-            class_mean_var.append(mean_var)
-            mean_var = np.empty((train_data.shape[1], 2), dtype=float)
-            class_prob.append(len(train_target[train_target == k]) / len(train_target))
+                n_total = np.sum(train_data[train_target == k].T.flatten())
+                ni = np.sum(train_data[train_target == k].T[i])
+                pi = (ni + args.alpha)/(n_total + args.alpha * train_data.shape[1])
+                fitted[i] = [999, np.log(pi)]
+        class_fitted.append(fitted)
+        fitted = np.empty((train_data.shape[1], 2), dtype=float)
+        class_prob.append(len(train_target[train_target == k]) / len(train_target))
 
     my_test = []
     for u, row in enumerate(test_data):
@@ -90,17 +90,15 @@ def main(args):
             p = np.log(class_prob[k])
             for m in range(len(row)):
                 xi = row[m]
-                p_xi_k = norm.logpdf(xi, class_mean_var[k][m][0], class_mean_var[k][m][1])
-                p += p_xi_k
+                if args.naive_bayes_type == "gaussian":
+                    p_xi_k = norm.logpdf(xi, class_fitted[k][m][0], class_fitted[k][m][1])
+                    p += p_xi_k
+                elif args.naive_bayes_type == "multinomial":
+                    p_xi_k = xi * class_fitted[k][m][1]
+                    p += p_xi_k
             probs.append(p)
         # print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
         my_test.append(np.argmax(probs))
-    print(sklearn.metrics.accuracy_score(my_test, test_target))'''
-
-
-
-
-
 
     #   During prediction, compute probability density function of a Gaussian
     #   distribution using `scipy.stats.norm`, which offers `pdf` and `logpdf`
@@ -113,7 +111,7 @@ def main(args):
     #   all non-zero features as ones during both estimation and prediction.
 
     # TODO: Predict the test data classes and compute test accuracy.
-    test_accuracy = None
+    test_accuracy = sklearn.metrics.accuracy_score(my_test, test_target)
 
     return test_accuracy
 
@@ -121,4 +119,4 @@ if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     test_accuracy = main(args)
 
-    #print("Test accuracy {:.2f}%".format(100 * test_accuracy))
+    print("Test accuracy {:.2f}%".format(100 * test_accuracy))
