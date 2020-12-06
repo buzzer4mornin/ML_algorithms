@@ -62,10 +62,7 @@ def main(args):
             probs.append(p)
         #print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
         my_test.append(np.argmax(probs))
-
     print(sklearn.metrics.accuracy_score(my_test, test_target))
-
-
 
 
 
