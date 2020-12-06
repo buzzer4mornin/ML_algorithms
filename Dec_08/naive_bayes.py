@@ -25,6 +25,9 @@ def main(args):
     train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(
         data, target, test_size=args.test_size, random_state=args.seed)
 
+    print(train_data.shape[1])
+
+
     # TODO: Fit the naive Bayes classifier on the train data.
     #
     # The `args.naive_bayes_type` can be one of:
@@ -52,4 +55,4 @@ if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     test_accuracy = main(args)
 
-    print("Test accuracy {:.2f}%".format(100 * test_accuracy))
+    #print("Test accuracy {:.2f}%".format(100 * test_accuracy))
