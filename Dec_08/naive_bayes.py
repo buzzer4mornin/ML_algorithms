@@ -99,7 +99,6 @@ def main(args):
             probs.append(p)
         # print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
         my_test.append(np.argmax(probs))
-
     #   During prediction, compute probability density function of a Gaussian
     #   distribution using `scipy.stats.norm`, which offers `pdf` and `logpdf`
     #   methods, among others.
@@ -114,6 +113,7 @@ def main(args):
     test_accuracy = sklearn.metrics.accuracy_score(my_test, test_target)
 
     return test_accuracy
+
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     test_accuracy = main(args)
