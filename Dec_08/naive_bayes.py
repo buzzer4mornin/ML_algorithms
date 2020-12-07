@@ -27,18 +27,10 @@ def main(args):
         data, target, test_size=args.test_size, random_state=args.seed)
 
 
-
     # TODO: Fit the naive Bayes classifier on the train data.
-    #
-    # The `args.naive_bayes_type` can be one of:
-    # - "gaussian": Fit Gaussian NB, by estimating mean and variance of the input
-    #   features. For variance estimation use
-    #     1/N * \sum_x (x - mean)^2
-    #   and additionally increase all estimated variances by `args.alpha`.
-    class_fitted = []
-    #print(class_fitted)
-    class_prob = []
 
+    class_fitted = []
+    class_prob = []
 
     fitted = np.empty((train_data.shape[1], 2), dtype=float)
     for k in range(len(np.unique(train_target))):
