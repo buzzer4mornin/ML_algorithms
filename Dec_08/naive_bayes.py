@@ -80,12 +80,10 @@ def main(args):
                 ni = np.sum(train_data[train_target == k].T[i])
                 pi = (ni + args.alpha)/(n_total + args.alpha * train_data.shape[1])
                 fitted[i] = [999, pi]
-            #TODO: bernoulli
             elif args.naive_bayes_type == "bernoulli":
                 n_total = train_data[train_target == k].shape[0]
                 ni = train_data[train_target == k].T[i]
-                #ni = len(ni[ni != 0])
-                print(ni)
+                ni = len(ni[ni != 0])
                 pi = (ni + args.alpha)/(n_total + 2 * args.alpha)
                 fitted[i] = [999, pi]
         class_fitted.append(fitted)
@@ -106,8 +104,9 @@ def main(args):
                 elif args.naive_bayes_type == "multinomial":
                     p_xi_k = xi * np.log(class_fitted[k][m][1])
                     p += p_xi_k
-                #TODO: bernoulli
                 elif args.naive_bayes_type == "bernoulli":
+                    if xi > 0:
+                        xi = 1
                     p_xi_k = xi * np.log(class_fitted[k][m][1]/(1 - class_fitted[k][m][1])) + np.log(1 - class_fitted[k][m][1])
                     p += p_xi_k
             probs.append(p)
