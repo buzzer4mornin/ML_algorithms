@@ -84,8 +84,8 @@ def main(args):
             elif args.naive_bayes_type == "bernoulli":
                 n_total = train_data[train_target == k].shape[0]
                 ni = train_data[train_target == k].T[i]
+                #ni = len(ni[ni != 0])
                 print(ni)
-                ni = len(ni[ni > 0])
                 pi = (ni + args.alpha)/(n_total + 2 * args.alpha)
                 fitted[i] = [999, pi]
         class_fitted.append(fitted)
