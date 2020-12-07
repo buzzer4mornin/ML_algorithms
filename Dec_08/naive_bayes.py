@@ -35,35 +35,9 @@ def main(args):
     #     1/N * \sum_x (x - mean)^2
     #   and additionally increase all estimated variances by `args.alpha`.
     class_fitted = []
+    #print(class_fitted)
     class_prob = []
 
-    '''mean_var = np.empty((train_data.shape[1], 2), dtype=float)
-    for k in range(len(np.unique(train_target))):
-        for i in range(train_data.shape[1]):
-            mean = np.mean(train_data[train_target == k].T[i])
-            var = 0
-            for xi in train_data[train_target == k].T[i]:
-                var += (xi - mean)**2
-            var = var / len(train_data[train_target == k].T[i])
-            mean_var[i] = [mean, np.sqrt(var + args.alpha)]
-        class_mean_var.append(mean_var)
-        mean_var = np.empty((train_data.shape[1], 2), dtype=float)
-        class_prob.append(len(train_target[train_target == k])/len(train_target))
-
-
-    my_test = []
-    for u, row  in enumerate(test_data):
-        probs = []
-        for k in range(len(np.unique(train_target))):
-            p = np.log(class_prob[k])
-            for m in range(len(row)):
-                xi = row[m]
-                p_xi_k = norm.logpdf(xi, class_mean_var[k][m][0], class_mean_var[k][m][1])
-                p += p_xi_k
-            probs.append(p)
-        #print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
-        my_test.append(np.argmax(probs))
-    print(sklearn.metrics.accuracy_score(my_test, test_target))'''
 
     fitted = np.empty((train_data.shape[1], 2), dtype=float)
     for k in range(len(np.unique(train_target))):
@@ -90,8 +64,12 @@ def main(args):
         fitted = np.empty((train_data.shape[1], 2), dtype=float)
         class_prob.append(len(train_target[train_target == k]) / len(train_target))
 
+    class_fitted = np.asarray(class_fitted)
+    #print(class_fitted)
+
 
     my_test = []
+
     for u, row in enumerate(test_data):
         probs = []
         for k in range(len(np.unique(train_target))):
