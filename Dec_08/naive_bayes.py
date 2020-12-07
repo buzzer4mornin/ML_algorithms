@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import time
 
 import numpy as np
 from scipy.stats import norm
@@ -65,19 +66,21 @@ def main(args):
         class_prob.append(len(train_target[train_target == k]) / len(train_target))
 
     class_fitted = np.asarray(class_fitted)
-    #print(class_fitted)
-
 
     my_test = []
-
-    for u, row in enumerate(test_data):
+    import time
+    t_start = time.time()
+    for row in test_data:
         probs = []
         for k in range(len(np.unique(train_target))):
             p = np.log(class_prob[k])
             for m in range(len(row)):
                 xi = row[m]
                 if args.naive_bayes_type == "gaussian":
+                    #t__ = time.time()
                     p_xi_k = norm.logpdf(xi, class_fitted[k][m][0], class_fitted[k][m][1])
+                    #t___ = time.time()
+                    #print("my:---",(t___- t__))
                     p += p_xi_k
                 elif args.naive_bayes_type == "multinomial":
                     p_xi_k = xi * np.log(class_fitted[k][m][1])
@@ -88,18 +91,9 @@ def main(args):
                     p_xi_k = xi * np.log(class_fitted[k][m][1]/(1 - class_fitted[k][m][1])) + np.log(1 - class_fitted[k][m][1])
                     p += p_xi_k
             probs.append(p)
-        # print("{} ========== prediction:{}====== true:{}".format(probs, np.argmax(probs), test_target[u]))
         my_test.append(np.argmax(probs))
-
-    #   During prediction, compute probability density function of a Gaussian
-    #   distribution using `scipy.stats.norm`, which offers `pdf` and `logpdf`
-    #   methods, among others.
-    #
-    # - "multinomial": Multinomial NB with smoothing factor `args.alpha`.
-    #
-    # - "bernoulli": Bernoulli NB with smoothing factor `args.alpha`.
-    #   Do not forget that Bernoulli NB works with binary data, so consider
-    #   all non-zero features as ones during both estimation and prediction.
+    t_end = time.time()
+    print("second whole:", t_end - t_start)
 
     # TODO: Predict the test data classes and compute test accuracy.
     test_accuracy = sklearn.metrics.accuracy_score(my_test, test_target)
