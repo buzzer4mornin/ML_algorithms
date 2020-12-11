@@ -69,10 +69,7 @@ def main(args):
             for m in range(len(row)):
                 xi = row[m]
                 if args.naive_bayes_type == "gaussian":
-                    #t__ = time.time()
                     p_xi_k = norm.logpdf(xi, class_fitted[k][m][0], class_fitted[k][m][1])
-                    #t___ = time.time()
-                    #print("my:---",(t___- t__))
                     p += p_xi_k
                 elif args.naive_bayes_type == "multinomial":
                     p_xi_k = xi * np.log(class_fitted[k][m][1])

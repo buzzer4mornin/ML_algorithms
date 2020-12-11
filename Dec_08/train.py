@@ -1,25 +1,15 @@
 import numpy as np
+a = 16
+b = 24
+x = 60
 
 
-STAR = [[1, 1, 1, 1, 1],\
-        [1, 1, 2, 1, 1],\
-        [1, 2, 3, 2, 1],\
-        [1, 1, 2, 1, 1],\
-        [1, 1, 1, 1, 1,]]
-STAR = np.asarray(STAR)
+print(range(20, 26))
+
+i = 22
+
+if i in range(20,26):
+    print(i)
 
 
-# Initialize STACK to be an empty array the same size as STAR
-STACK = np.zeros(STAR.shape, np.float_)
-print(STACK)
 
-# A function that appends STAR to STACK
-def add_Star(star):
-    out = np.dstack((STACK,star))
-
-    return out
-
-# Call the function
-STACK = add_Star(STAR)
-
-#print(STACK)
