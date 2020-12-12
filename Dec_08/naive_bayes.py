@@ -64,22 +64,26 @@ def main(args):
     t_start = time.time()
     for row in test_data:
         probs = []
-        for k in range(len(np.unique(train_target))):
-            p = np.log(class_prob[k])
-            for m in range(len(row)):
-                xi = row[m]
-                if args.naive_bayes_type == "gaussian":
-                    p_xi_k = norm.logpdf(xi, class_fitted[k][m][0], class_fitted[k][m][1])
-                    p += p_xi_k
-                elif args.naive_bayes_type == "multinomial":
-                    p_xi_k = xi * np.log(class_fitted[k][m][1])
-                    p += p_xi_k
-                elif args.naive_bayes_type == "bernoulli":
-                    if xi > 0:
-                        xi = 1
-                    p_xi_k = xi * np.log(class_fitted[k][m][1]/(1 - class_fitted[k][m][1])) + np.log(1 - class_fitted[k][m][1])
-                    p += p_xi_k
-            probs.append(p)
+        if args.naive_bayes_type == "gaussian":
+            probs = np.log(class_prob) + np.sum(norm.logpdf(row, class_fitted[:, :, 0], class_fitted[:, :, 1]),
+                                                axis=-1)
+        else:
+            for k in range(len(np.unique(train_target))):
+                p = np.log(class_prob[k])
+                for m in range(len(row)):
+                    xi = row[m]
+                    #if args.naive_bayes_type == "gaussian":
+                    #    p_xi_k = norm.logpdf(xi, class_fitted[k][m][0], class_fitted[k][m][1])
+                    #    p += p_xi_k
+                    if args.naive_bayes_type == "multinomial":
+                        p_xi_k = xi * np.log(class_fitted[k][m][1])
+                        p += p_xi_k
+                    elif args.naive_bayes_type == "bernoulli":
+                        if xi > 0:
+                            xi = 1
+                        p_xi_k = xi * np.log(class_fitted[k][m][1]/(1 - class_fitted[k][m][1])) + np.log(1 - class_fitted[k][m][1])
+                        p += p_xi_k
+                probs.append(p)
         my_test.append(np.argmax(probs))
     t_end = time.time()
     print("second whole:", t_end - t_start)

@@ -3,13 +3,7 @@ a = 16
 b = 24
 x = 60
 
-
-print(range(20, 26))
-
-i = 22
-
-if i in range(20,26):
-    print(i)
-
+a = {2: "44", 5:"12"}
+print(a.keys())
 
 
