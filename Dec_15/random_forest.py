@@ -50,3 +50,10 @@ def main(args):
     #   (When feature_subsampling == 1, all features are used, but the mask
     #   should still be generated.)
     #
+    # - train a random forest consisting of `args.trees` decision trees
+    #
+    # - if `args.bootstrapping` is set, right before training a decision tree,
+    #   create a bootstrap sample of the training data using the following indices
+    #     indices = generator.choice(len(train_data), size=len(train_data))
+    #   and if `args.bootstrapping` is not set, use the original training data.
+    #
