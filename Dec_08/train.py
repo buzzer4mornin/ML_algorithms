@@ -1,9 +1,13 @@
 import numpy as np
-a = 16
-b = 24
-x = 60
 
-a = {2: "44", 5:"12"}
-print(a.keys())
 
+l=[1,2,3,3]
+print(l)
+
+
+s = set(l)
+print(s)
+
+s.discard(1)
+print(s)
 
