@@ -59,3 +59,7 @@ def main(args):
     #
     # During prediction, use voting to find the most frequent class for a given
     # input, choosing the one with smallest class index in case of a tie.
+
+    # TODO: Finally, measure the training and testing accuracy.
+    train_accuracy = None
+    test_accuracy = None
