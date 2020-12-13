@@ -20,3 +20,9 @@ parser.add_argument("--trees", default=1, type=int, help="Number of trees in the
 def main(args):
     # Use the wine dataset
     data, target = sklearn.datasets.load_wine(return_X_y=True)
+
+    # Split the data randomly to train and test using `sklearn.model_selection.train_test_split`,
+    # with `test_size=args.test_size` and `random_state=args.seed`.
+    train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(
+        data, target, test_size=args.test_size, random_state=args.seed)
+
