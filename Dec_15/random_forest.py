@@ -65,3 +65,7 @@ def main(args):
     test_accuracy = None
 
     return train_accuracy, test_accuracy
+
+if __name__ == "__main__":
+    args = parser.parse_args([] if "__file__" not in globals() else None)
+    train_accuracy, test_accuracy = main(args)
