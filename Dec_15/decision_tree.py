@@ -44,3 +44,10 @@ def main(args):
     #   - there are at least `args.min_to_split` corresponding instances;
     #   - the criterion value is not zero.
     #
+    # - When `args.max_leaves` is None, use recursive (left descendants first, then
+    #   right descendants) approach, splitting every node if the constraints are valid.
+    #   Otherwise (when `args.max_leaves` is not None), always split a node where the
+    #   constraints are valid and the overall criterion value (c_left + c_right - c_node)
+    #   decreases the most. If there are several such nodes, choose the one
+    #   which was created sooner (a left child is considered to be created
+    #   before a right child).
