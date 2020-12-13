@@ -16,3 +16,7 @@ parser.add_argument("--seed", default=42, type=int, help="Random seed")
 parser.add_argument("--test_size", default=42, type=lambda x:int(x) if x.isdigit() else float(x), help="Test set size")
 parser.add_argument("--trees", default=1, type=int, help="Number of trees in the forest")
 # If you add more arguments, ReCodEx will keep them with your default values.
+
+def main(args):
+    # Use the wine dataset
+    data, target = sklearn.datasets.load_wine(return_X_y=True)
