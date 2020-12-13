@@ -57,3 +57,5 @@ def main(args):
     #     indices = generator.choice(len(train_data), size=len(train_data))
     #   and if `args.bootstrapping` is not set, use the original training data.
     #
+    # During prediction, use voting to find the most frequent class for a given
+    # input, choosing the one with smallest class index in case of a tie.
