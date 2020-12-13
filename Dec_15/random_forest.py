@@ -26,3 +26,9 @@ def main(args):
     train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(
         data, target, test_size=args.test_size, random_state=args.seed)
 
+    # TODO: Create a random forest on the trainining data.
+    #
+    # For determinism, create a generator
+    #   generator = np.random.RandomState(args.seed)
+    # at the beginning and then use this instance for all random number generation.
+    #
