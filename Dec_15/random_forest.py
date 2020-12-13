@@ -32,3 +32,11 @@ def main(args):
     #   generator = np.random.RandomState(args.seed)
     # at the beginning and then use this instance for all random number generation.
     #
+    # Use a simplified decision tree from the `decision_tree` assignment:
+    # - use `entropy` as the criterion
+    # - use `max_depth` constraint, so split a node only if:
+    #   - its depth is less than `args.max_depth`
+    #   - the criterion is not 0 (the corresponding instance targetsare not the same)
+    # When splitting nodes, proceed in the depth-first order, splitting all nodes
+    # in left subtrees before nodes in right subtrees.
+    #
