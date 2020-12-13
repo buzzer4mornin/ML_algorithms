@@ -40,3 +40,13 @@ def main(args):
     # When splitting nodes, proceed in the depth-first order, splitting all nodes
     # in left subtrees before nodes in right subtrees.
     #
+    # Additionally, implement:
+    # - feature subsampling: when searching for the best split, try only
+    #   a subset of features. When splitting a node, start by generating
+    #   a feature mask using
+    #     generator.uniform(size=number_of_features) <= feature_subsampling
+    #   which gives a boolean value for every feature, with `True` meaning the
+    #   feature is used during best split search, and `False` it is not.
+    #   (When feature_subsampling == 1, all features are used, but the mask
+    #   should still be generated.)
+    #
