@@ -63,3 +63,5 @@ def main(args):
     # TODO: Finally, measure the training and testing accuracy.
     train_accuracy = None
     test_accuracy = None
+
+    return train_accuracy, test_accuracy
