@@ -26,6 +26,18 @@ def main(args):
     train_data, test_data, train_target, test_target = sklearn.model_selection.train_test_split(
         data, target, test_size=args.test_size, random_state=args.seed)
 
+    class Node:
+        def __init__(self, gini, num_samples, num_samples_per_class, predicted_class):
+            self.gini = gini
+            self.num_samples = num_samples
+            self.num_samples_per_class = num_samples_per_class
+            self.predicted_class = predicted_class
+            self.feature_index = 0
+            self.threshold = 0
+            self.left = None
+            self.right = None
+
+
     class DecisionTreeClassifier:
         def __init__(self, max_depth=None):
             self.max_depth = max_depth
@@ -94,6 +106,57 @@ def main(args):
 
             return best_idx, best_thr
 
+
+
+        def fit(self, X, y):
+            """Build decision tree classifier."""
+            self.n_classes_ = len(set(y))  # classes are assumed to go from 0 to n-1
+            self.n_features_ = X.shape[1]
+            self.tree_ = self._grow_tree(X, y)
+
+
+
+        def _grow_tree(self, X, y, depth=0):
+            """Build a decision tree by recursively finding the best split."""
+            # Population for each class in current node. The predicted class is the one with
+            # largest population.
+            num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes_)]
+            predicted_class = np.argmax(num_samples_per_class)
+            node = Node(
+                # TODO: add self._gini() function
+                gini=self._gini(y),
+                num_samples=y.size,
+                num_samples_per_class=num_samples_per_class,
+                predicted_class=predicted_class,
+            )
+
+            # Split recursively until maximum depth is reached.
+            if depth < self.max_depth:
+                idx, thr = self._best_split(X, y)
+                if idx is not None:
+                    indices_left = X[:, idx] < thr
+                    X_left, y_left = X[indices_left], y[indices_left]
+                    X_right, y_right = X[~indices_left], y[~indices_left]
+                    node.feature_index = idx
+                    node.threshold = thr
+                    node.left = self._grow_tree(X_left, y_left, depth + 1)
+                    node.right = self._grow_tree(X_right, y_right, depth + 1)
+            return node
+
+
+        def predict(self, X):
+            return [self._predict(inputs) for inputs in X]
+
+
+        def _predict(self, inputs):
+            """Predict class for a single sample."""
+            node = self.tree_
+            while node.left:
+                if inputs[node.feature_index] < node.threshold:
+                    node = node.left
+                else:
+                    node = node.right
+            return node.predicted_class
 
 
 
