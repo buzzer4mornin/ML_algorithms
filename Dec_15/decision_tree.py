@@ -42,7 +42,7 @@ def main(args):
         def __init__(self, max_depth=None):
             self.max_depth = max_depth
 
-        def _best_split(self, X, y):
+        def _best_split(self, args, X, y):
             """Find the best split for a node.
             "Best" means that the average impurity of the two children, weighted by their
             population, is the smallest possible. Additionally it must be less than the
@@ -56,15 +56,14 @@ def main(args):
                 best_thr: Threshold to use for the split, or None if no split is found.
             """
             # Need at least two elements to split a node.
-            m = y.size
-            if m <= 1:
+            if y.size < args.min_to_split:  # +++
                 return None, None
 
             # Count of each class in the current node.
             num_parent = [np.sum(y == c) for c in range(self.n_classes_)]
 
             # Gini of current node.
-            best_gini = 1.0 - sum((n / m) ** 2 for n in num_parent)
+            best_gini = 1.0 - sum((n / y.size) ** 2 for n in num_parent)
             best_idx, best_thr = None, None
 
             # Loop through all features.
@@ -78,7 +77,7 @@ def main(args):
                 # linear rather than quadratic.
                 num_left = [0] * self.n_classes_
                 num_right = num_parent.copy()
-                for i in range(1, m):  # possible split positions
+                for i in range(1, y.size):  # possible split positions
                     c = classes[i - 1]
                     num_left[c] += 1
                     num_right[c] -= 1
@@ -86,12 +85,12 @@ def main(args):
                         (num_left[x] / i) ** 2 for x in range(self.n_classes_)
                     )
                     gini_right = 1.0 - sum(
-                        (num_right[x] / (m - i)) ** 2 for x in range(self.n_classes_)
+                        (num_right[x] / (y.size - i)) ** 2 for x in range(self.n_classes_)
                     )
 
                     # The Gini impurity of a split is the weighted average of the Gini
                     # impurity of the children.
-                    gini = (i * gini_left + (m - i) * gini_right) / m
+                    gini = (i * gini_left + (y.size - i) * gini_right) / y.size
 
                     # The following condition is to make sure we don't try to split two
                     # points with identical values for that feature, as it is impossible
