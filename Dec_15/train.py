@@ -23,3 +23,8 @@
 #   decreases the most. If there are several such nodes, choose the one
 #   which was created sooner (a left child is considered to be created
 #   before a right child).
+
+import numpy as np
+a = np.array([1,2,3])
+
+b = a.copy()
