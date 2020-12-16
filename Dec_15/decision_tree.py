@@ -54,6 +54,7 @@ def main(args):
     class DecisionTreeClassifier:
         def __init__(self):  # X, y inside bracket
             self.max_depth = args.max_depth
+            self.max_leaves = args.max_leaves
             self.frontiers = []
             # self.X = X
             # self.y = y
@@ -146,27 +147,32 @@ def main(args):
             #TODO: around here
             # Push leaf to frontier
             hq.heappush(self.frontiers, node)
+            max_leaves += 1
             # birth_time += 1 ???
-            # THEN below
 
+            if self.max_leaves is None:
+                self.max_leaves = 1000
 
-            # Split recursively until maximum depth is reached.
-            if self.max_depth is None:
-                self.max_depth = 1000  # arbitrary number
+            if max_leaves <= self.max_leaves:
+                if self.max_depth is None:
+                    self.max_depth = 1000  # arbitrary number
 
-            if depth < self.max_depth:
-                idx, thr, best_gini = self._best_split(X, y)
+                if depth < self.max_depth:
+                    mynode = hq.heappop(self.frontiers)
+                    idx, thr, best_gini = self._best_split(X, y)
 
-                if idx is not None:
-                    indices_left = X[:, idx] < thr
-                    X_left, y_left = X[indices_left], y[indices_left]
-                    X_right, y_right = X[~indices_left], y[~indices_left]
-                    print(len(y_right), len(y_left))
-                    node.feature_index = idx
-                    node.threshold = thr
-                    node.left = self._grow_tree(X_left, y_left, depth + 1)
-                    node.right = self._grow_tree(X_right, y_right, depth + 1)
+                    if idx is not None:
+                        indices_left = X[:, idx] < thr
+                        X_left, y_left = X[indices_left], y[indices_left]
+                        X_right, y_right = X[~indices_left], y[~indices_left]
+                        print(len(y_right), len(y_left))
+                        node.feature_index = idx
+                        node.threshold = thr
+                        node.left = self._grow_tree(X_left, y_left, depth + 1)
+                        node.right = self._grow_tree(X_right, y_right, depth + 1)
+                return node
             return node
+
 
         '''def _grow_tree(self, X, y, depth=0, max_leaves=0, c_time=0):
             """Build a decision tree by recursively finding the best split."""

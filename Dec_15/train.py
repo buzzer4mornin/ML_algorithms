@@ -61,5 +61,5 @@ hq.heappush(h, mynode)
 hq.heappush(h, mynode_2)
 hq.heappush(h, mynode_3)
 
-y = hq.heappop(h)
-print(y.node_score,y.name)
+#y = hq.heappop(h)
+print(h,)
