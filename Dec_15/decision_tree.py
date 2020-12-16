@@ -79,6 +79,9 @@ def main(args):
             else:
                 best_gini = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_parent if (n / len(y)) != 0)
 
+            if len(y) == 48:
+                print("demonstrate1:", best_gini)
+
             best_idx, best_thr = None, None
 
             # Loop through all features.
@@ -117,6 +120,8 @@ def main(args):
                         best_gini = gini
                         best_idx = idx
                         best_thr = (thresholds[i] + thresholds[i - 1]) / 2  # midpoint
+            if len(y) == 48:
+                print("demonstrate2:", best_gini)
 
             return best_idx, best_thr, best_gini, num_parent
 
@@ -127,30 +132,31 @@ def main(args):
             self.tree_ = self._grow_tree(X, y)
 
 
-        def _single_node(self, X, y, birth_time):
+        def _single_node(self, new_X, new_y, birth_time):
             """Build a decision tree by recursively finding the best split."""
             # Population for each class in current node. The predicted class is the one with largest population.
-            num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes_)]
+            num_samples_per_class = [np.sum(new_y == i) for i in range(self.n_classes_)]
             predicted_class = np.argmax(num_samples_per_class)
 
             # Gini/Entropy of node.
             if args.criterion == "gini":
-                gini_or_entropy = sum((n / len(y)) * (1 - (n / len(y))) for n in num_samples_per_class)
+                gini_or_entropy = sum((n / len(new_y)) * (1 - (n / len(new_y))) for n in num_samples_per_class)
             else:
                 gini_or_entropy = -1 * sum(
-                    (n / len(y)) * np.log(n / len(y)) for n in num_samples_per_class if (n / len(y)) != 0)
+                    (n / len(new_y)) * np.log(n / len(new_y)) for n in num_samples_per_class if (n / len(new_y)) != 0)
 
-            node_idx, node_thr, node_score, node_classes = self._best_split(X, y)
+
+            node_idx, node_thr, node_score, node_classes = self._best_split(new_X, new_y)
 
             #TODO: HEREHERHEHREHREHRHERHEHRHERHEHR
             #if node_score is None:
             #    node_score = -1000
 
             single_node = Node(
-                X=X,
-                y=y,
+                X=new_X,
+                y=new_y,
                 gini_or_entropy=gini_or_entropy,
-                num_samples=len(y),
+                num_samples=len(new_y),
                 num_samples_per_class=num_samples_per_class,
                 predicted_class=predicted_class,
                 node_score=node_score,
@@ -180,7 +186,8 @@ def main(args):
                     mynode = hq.heappop(self.frontiers)
                     #print(mynode.num_samples)
                     idx, thr, X, y = mynode.node_idx, mynode.node_thr, mynode.X, mynode.y
-
+                    X = np.array(X)
+                    y = np.array(y)
                     if idx is not None:
                         #print(mynode.node_classes)
                         #X = mynode.X
@@ -190,11 +197,11 @@ def main(args):
                         X_right, y_right = X[~indices_left], y[~indices_left]
                         mynode.feature_index = idx
                         mynode.threshold = thr
-                        mynode.left = self._single_node(X_left, y_left, birth_time + 1)
-                        mynode.right = self._single_node(X_right, y_right, birth_time + 2)
-                        print("scores", mynode.left.node_score, mynode.right.node_score)        #TODO: HERHEREHRHER
-                        print("classes", mynode.left.node_classes, mynode.right.node_classes)   #TODO: HERHEREHRHER
-                        #print(len(mynode.left.y), len(mynode.right.y))
+                        mynode.left = self._single_node(np.array(X_left), np.array(y_left), birth_time + 1)
+                        mynode.right = self._single_node(np.array(X_right), np.array(y_right), birth_time + 2)
+                        #print("scores", mynode.left.node_score, mynode.right.node_score)        #TODO: HERHEREHRHER
+                        print("classes", mynode.left.node_classes, mynode.right.node_classes)   #TODO: WHY mynode.left.node_classes = NONE????????
+                        print(len(mynode.left.y), len(mynode.right.y))
                         hq.heappush(self.frontiers, mynode.left)
                         hq.heappush(self.frontiers, mynode.right)
                         depth += 1

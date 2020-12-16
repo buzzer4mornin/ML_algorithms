@@ -23,43 +23,29 @@
 #   decreases the most. If there are several such nodes, choose the one
 #   which was created sooner (a left child is considered to be created
 #   before a right child).
-class Node:
-    def __init__(self,node_score, time, gini_or_entropy, num_samples, num_samples_per_class, predicted_class , name):
-        self.node_score = node_score
-        self.time=time
-        self.gini_or_entropy = gini_or_entropy
-        self.num_samples = num_samples
-        self.num_samples_per_class = num_samples_per_class
-        self.predicted_class = predicted_class
-        self.feature_index = 0
-        self.threshold = 0
-        self.left = None
-        self.right = None
-        self.name=name
+import numpy as np
 
+def _best_split(y):
+    criterion= "gini"
+    # Need at least two elements to split a node.
+    if len(y) < 40:  # +++
+        return None, None, None, None
 
-    def __lt__(self, other):
-        return self.time < other.time if self.node_score == other.node_score else self.node_score > other.node_score
+    # Count of each class in the current node.
+    num_parent = [np.sum(y == c) for c in range(3)]
 
+    # Gini/Entropy of current node.
+    if criterion == "gini":
+        best_gini = sum((n / len(y)) * (1 - (n / len(y))) for n in num_parent)
+        #best_gini = 1.0 - sum((n / len(y)) ** 2 for n in num_parent)
+    else:
+        best_gini = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_parent if (n / len(y)) != 0)
 
-mynode = Node(95, 10, 5, 100, 6, 0,  "so")
-mynode_2 = Node(66, 3, 10, 200, 4, 1, "now")
-mynode_3 = Node(95, 4, 15, 300, 2, 2, "then")
+    return best_gini,num_parent
 
-
-import heapq as hq
-h = []
-'''hq.heappush(h, (5, 6))
-hq.heappush(h, (7, 1))
-hq.heappush(h, (1, 3))
-hq.heappush(h, (3, 5))
-y = hq.heappop(h)
-print(y)
-'''
-
-hq.heappush(h, mynode)
-hq.heappush(h, mynode_2)
-hq.heappush(h, mynode_3)
-
-#y = hq.heappop(h)
-print(len(h))
+a = np.full(47,1)
+a = list(a)
+a.append(0)
+a = np.array(a)
+my, you= _best_split(a)
+print(my,you)
