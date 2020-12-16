@@ -8,6 +8,7 @@ import sklearn.model_selection
 import heapq as hq
 
 # from sklearn._tree import BestFirstTreeBuilder
+from sklearn.tree import DecisionTreeClassifier
 
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
@@ -17,7 +18,8 @@ parser.add_argument("--max_leaves", default=None, type=int, help="Maximum number
 parser.add_argument("--min_to_split", default=2, type=int, help="Minimum examples required to split")
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")
-parser.add_argument("--test_size", default=42, type=lambda x: int(x) if x.isdigit() else float(x), help="Test set size")
+parser.add_argument("--test_size", default=42, type=lambda x:int(x) if x.isdigit() else float(x), help="Test set size")
+# If you add more arguments, ReCodEx will keep them with your default values.
 
 
 # If you add more arguments, ReCodEx will keep them with your default values.
@@ -32,8 +34,8 @@ def main(args):
         data, target, test_size=args.test_size, random_state=args.seed)
 
     class Node:
-        def __init__(self, gini_or_entropy, num_samples, num_samples_per_class, predicted_class, node_score,
-                     birth_time):
+        def __init__(self, X, y, gini_or_entropy, num_samples, num_samples_per_class, predicted_class, node_score, node_idx, node_thr,
+                     node_classes, birth_time):
             self.node_score = node_score
             self.birth_time = birth_time
             self.gini_or_entropy = gini_or_entropy
@@ -44,6 +46,11 @@ def main(args):
             self.threshold = 0
             self.left = None
             self.right = None
+            self.X = X
+            self.y = y
+            self.node_idx = node_idx
+            self.node_thr = node_thr
+            self.node_classes = node_classes
 
         def __lt__(self, other):
             return self.birth_time < other.birth_time if self.node_score == other.node_score else self.node_score > other.node_score
@@ -52,17 +59,16 @@ def main(args):
             return True if self.left == None and self.right == None else False
 
     class DecisionTreeClassifier:
-        def __init__(self):  # X, y inside bracket
+        def __init__(self):
             self.max_depth = args.max_depth
             self.max_leaves = args.max_leaves
             self.frontiers = []
-            # self.X = X
-            # self.y = y
+
 
         def _best_split(self, X, y):
             # Need at least two elements to split a node.
             if len(y) < args.min_to_split:  # +++
-                return None, None, None
+                return None, None, None, None
 
             # Count of each class in the current node.
             num_parent = [np.sum(y == c) for c in range(self.n_classes_)]
@@ -112,7 +118,7 @@ def main(args):
                         best_idx = idx
                         best_thr = (thresholds[i] + thresholds[i - 1]) / 2  # midpoint
 
-            return best_idx, best_thr, best_gini
+            return best_idx, best_thr, best_gini, num_parent
 
         def fit(self, X, y):
             """Build decision tree classifier."""
@@ -120,7 +126,8 @@ def main(args):
             self.n_features_ = X.shape[1]
             self.tree_ = self._grow_tree(X, y)
 
-        def _grow_tree(self, X, y, depth=0, max_leaves=0, birth_time=0):
+
+        def _single_node(self, X, y, birth_time):
             """Build a decision tree by recursively finding the best split."""
             # Population for each class in current node. The predicted class is the one with largest population.
             num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes_)]
@@ -133,45 +140,70 @@ def main(args):
                 gini_or_entropy = -1 * sum(
                     (n / len(y)) * np.log(n / len(y)) for n in num_samples_per_class if (n / len(y)) != 0)
 
-            node_score = self._best_split(X, y)[2]
+            node_idx, node_thr, node_score, node_classes = self._best_split(X, y)
 
-            node = Node(
+            #TODO: HEREHERHEHREHREHRHERHEHRHERHEHR
+            #if node_score is None:
+            #    node_score = -1000
+
+            single_node = Node(
+                X=X,
+                y=y,
                 gini_or_entropy=gini_or_entropy,
                 num_samples=len(y),
                 num_samples_per_class=num_samples_per_class,
                 predicted_class=predicted_class,
                 node_score=node_score,
+                node_idx=node_idx,
+                node_thr=node_thr,
+                node_classes=node_classes,
                 birth_time=birth_time
             )
 
-            #TODO: around here
-            # Push leaf to frontier
-            hq.heappush(self.frontiers, node)
-            max_leaves += 1
-            # birth_time += 1 ???
+            return single_node
+
+        def _grow_tree(self, X, y, depth=0, birth_time=0):
+
+            root_node = self._single_node(X, y, birth_time=0)
+
+            hq.heappush(self.frontiers, root_node)
+            max_leaves = len(self.frontiers)
 
             if self.max_leaves is None:
                 self.max_leaves = 1000
 
-            if max_leaves <= self.max_leaves:
-                if self.max_depth is None:
-                    self.max_depth = 1000  # arbitrary number
+            if self.max_depth is None:
+                self.max_depth = 1000
 
+            #TODO: maybe add specific self.X, self.y into Node class
+            while max_leaves < self.max_leaves:
                 if depth < self.max_depth:
                     mynode = hq.heappop(self.frontiers)
-                    idx, thr, best_gini = self._best_split(X, y)
+                    #print(mynode.num_samples)
+                    idx, thr, X, y = mynode.node_idx, mynode.node_thr, mynode.X, mynode.y
 
                     if idx is not None:
+                        #print(mynode.node_classes)
+                        #X = mynode.X
+                        #y = mynode.y
                         indices_left = X[:, idx] < thr
                         X_left, y_left = X[indices_left], y[indices_left]
                         X_right, y_right = X[~indices_left], y[~indices_left]
-                        print(len(y_right), len(y_left))
-                        node.feature_index = idx
-                        node.threshold = thr
-                        node.left = self._grow_tree(X_left, y_left, depth + 1)
-                        node.right = self._grow_tree(X_right, y_right, depth + 1)
-                return node
-            return node
+                        mynode.feature_index = idx
+                        mynode.threshold = thr
+                        mynode.left = self._single_node(X_left, y_left, birth_time + 1)
+                        mynode.right = self._single_node(X_right, y_right, birth_time + 2)
+                        #print(mynode.left.node_score, mynode.right.node_score)
+                        print(mynode.left.node_classes, mynode.right.node_classes)
+                        hq.heappush(self.frontiers, mynode.left)
+                        hq.heappush(self.frontiers, mynode.right)
+                        depth += 1
+                        birth_time += 1
+                    max_leaves = len(self.frontiers)
+                else:
+                    break
+
+            return root_node
 
 
         '''def _grow_tree(self, X, y, depth=0, max_leaves=0, c_time=0):

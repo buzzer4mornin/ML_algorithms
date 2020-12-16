@@ -62,4 +62,4 @@ hq.heappush(h, mynode_2)
 hq.heappush(h, mynode_3)
 
 #y = hq.heappop(h)
-print(h,)
+print(len(h))
