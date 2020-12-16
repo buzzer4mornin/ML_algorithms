@@ -23,13 +23,43 @@
 #   decreases the most. If there are several such nodes, choose the one
 #   which was created sooner (a left child is considered to be created
 #   before a right child).
+class Node:
+    def __init__(self,node_score, time, gini_or_entropy, num_samples, num_samples_per_class, predicted_class , name):
+        self.node_score = node_score
+        self.time=time
+        self.gini_or_entropy = gini_or_entropy
+        self.num_samples = num_samples
+        self.num_samples_per_class = num_samples_per_class
+        self.predicted_class = predicted_class
+        self.feature_index = 0
+        self.threshold = 0
+        self.left = None
+        self.right = None
+        self.name=name
+
+
+    def __lt__(self, other):
+        return self.time < other.time if self.node_score == other.node_score else self.node_score > other.node_score
+
+
+mynode = Node(95, 10, 5, 100, 6, 0,  "so")
+mynode_2 = Node(66, 3, 10, 200, 4, 1, "now")
+mynode_3 = Node(95, 4, 15, 300, 2, 2, "then")
+
 
 import heapq as hq
 h = []
-hq.heappush(h, (5, 6))
+'''hq.heappush(h, (5, 6))
 hq.heappush(h, (7, 1))
 hq.heappush(h, (1, 3))
 hq.heappush(h, (3, 5))
 y = hq.heappop(h)
 print(y)
+'''
 
+hq.heappush(h, mynode)
+hq.heappush(h, mynode_2)
+hq.heappush(h, mynode_3)
+
+y = hq.heappop(h)
+print(y.node_score,y.name)
