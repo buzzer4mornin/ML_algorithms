@@ -39,11 +39,12 @@ def main(args):
 
 
     class DecisionTreeClassifier:
-        def __init__(self, max_depth=None):
-            self.max_depth = max_depth
+        def __init__(self):         #X, y inside bracket
+            self.max_depth = args.max_depth
+            #self.X = X
+            #self.y = y
 
-        def _best_split(self, args, X, y):
-
+        def _best_split(self, X, y):
             # Need at least two elements to split a node.
             if len(y) < args.min_to_split:  # +++
                 return None, None
@@ -74,14 +75,14 @@ def main(args):
                     num_right[c] -= 1
 
                     if args.criterion == "gini":
-                        gini_left = sum((num_left[x] / i) * (1 - (num_left[x] / i)) for x in range(4))
+                        gini_left = sum((num_left[x] / i) * (1 - (num_left[x] / i)) for x in range(self.n_classes_))
                         gini_right = sum(
-                            (num_right[x] / (len(y) - i)) * (1 - (num_right[x] / (len(y) - i))) for x in range(4))
+                            (num_right[x] / (len(y) - i)) * (1 - (num_right[x] / (len(y) - i))) for x in range(self.n_classes_))
                     else:
                         gini_left = -1 * sum(
-                            (num_left[x] / i) * np.log(num_left[x] / i) for x in range(4) if (num_left[x] / i) != 0)
+                            (num_left[x] / i) * np.log(num_left[x] / i) for x in range(self.n_classes_) if (num_left[x] / i) != 0)
                         gini_right = -1 * sum(
-                            (num_right[x] / (len(y) - i)) * np.log((num_right[x] / (len(y) - i))) for x in range(4) if
+                            (num_right[x] / (len(y) - i)) * np.log((num_right[x] / (len(y) - i))) for x in range(self.n_classes_) if
                             (num_right[x] / (len(y) - i)) != 0)
 
                     # The Gini/Entropy of a split is the weighted average of children
@@ -130,8 +131,11 @@ def main(args):
             )
 
             # Split recursively until maximum depth is reached.
+            if self.max_depth == None:
+                self.max_depth = 1000
+
             if depth < self.max_depth:
-                idx, thr = self._best_split(args, X, y)
+                idx, thr = self._best_split(X, y)
                 if idx is not None:
                     indices_left = X[:, idx] < thr
                     X_left, y_left = X[indices_left], y[indices_left]
@@ -140,6 +144,7 @@ def main(args):
                     node.threshold = thr
                     node.left = self._grow_tree(X_left, y_left, depth + 1)
                     node.right = self._grow_tree(X_right, y_right, depth + 1)
+
             return node
 
 
@@ -158,10 +163,13 @@ def main(args):
             return node.predicted_class
 
     my_Tree = DecisionTreeClassifier()
+    my_Tree.fit(train_data, train_target)
+    train_t, test_t = my_Tree.predict(train_data), my_Tree.predict(test_data)
+
 
     # TODO: Finally, measure the training and testing accuracy.
-    train_accuracy = None
-    test_accuracy = None
+    train_accuracy = sklearn.metrics.accuracy_score(train_t, train_target)
+    test_accuracy = sklearn.metrics.accuracy_score(test_t, test_target)
 
     return train_accuracy, test_accuracy
 
@@ -169,5 +177,5 @@ if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     train_accuracy, test_accuracy = main(args)
 
-    #print("Train accuracy: {:.1f}%".format(100 * train_accuracy))
-    #print("Test accuracy: {:.1f}%".format(100 * test_accuracy))
+    print("Train accuracy: {:.1f}%".format(100 * train_accuracy))
+    print("Test accuracy: {:.1f}%".format(100 * test_accuracy))
