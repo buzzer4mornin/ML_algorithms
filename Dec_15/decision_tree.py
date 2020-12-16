@@ -148,10 +148,6 @@ def main(args):
 
             node_idx, node_thr, node_score, node_classes = self._best_split(new_X, new_y)
 
-            #TODO: HEREHERHEHREHREHRHERHEHRHERHEHR
-            #if node_score is None:
-            #    node_score = -1000
-
             single_node = Node(
                 X=new_X,
                 y=new_y,
@@ -197,10 +193,11 @@ def main(args):
                         X_right, y_right = X[~indices_left], y[~indices_left]
                         mynode.feature_index = idx
                         mynode.threshold = thr
-                        mynode.left = self._single_node(np.array(X_left), np.array(y_left), birth_time + 1)
+                        mynode.left = self._single_node(np.array(X_left), np.array(y_left), birth_time + 1) # TODO: ITS HERE! Node length of 38 cant be partioned into [0,6,32]
                         mynode.right = self._single_node(np.array(X_right), np.array(y_right), birth_time + 2)
-                        #print("scores", mynode.left.node_score, mynode.right.node_score)        #TODO: HERHEREHRHER
-                        print("classes", mynode.left.node_classes, mynode.right.node_classes)   #TODO: WHY mynode.left.node_classes = NONE????????
+                        #TODO: implement GINI GAIN not [return best_gini in _best_split()]
+                        print("scores", mynode.left.node_score, mynode.right.node_score)
+                        print("classes", mynode.left.node_classes, mynode.right.node_classes)   #TODO: reason is min_to_split is 40 and node has 38 ---> python3 decision_tree.py --criterion=gini --min_to_split=40 --max_leaves=4 --seed=92
                         print(len(mynode.left.y), len(mynode.right.y))
                         hq.heappush(self.frontiers, mynode.left)
                         hq.heappush(self.frontiers, mynode.right)

@@ -41,11 +41,10 @@ def _best_split(y):
     else:
         best_gini = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_parent if (n / len(y)) != 0)
 
-    return best_gini,num_parent
+    return num_parent
 
-a = np.full(47,1)
+a = [1,2,2,2,2,2,2,2,2,2,2 ,2 ,1 ,2 ,2 ,2, 2, 1 ,2 ,2 ,2 ,2 ,2 ,2 ,1 ,2 ,1 ,2 ,2 ,2, 2, 2, 1 ,2 ,2 ,2 ,2,2]
 a = list(a)
-a.append(0)
 a = np.array(a)
-my, you= _best_split(a)
-print(my,you)
+my= _best_split(a)
+print(my)
