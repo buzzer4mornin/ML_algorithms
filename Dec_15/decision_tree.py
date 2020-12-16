@@ -175,7 +175,6 @@ def main(args):
             if self.max_depth is None:
                 self.max_depth = 1000
 
-            #TODO: maybe add specific self.X, self.y into Node class
             while max_leaves < self.max_leaves:
                 if depth < self.max_depth:
                     mynode = hq.heappop(self.frontiers)
@@ -193,8 +192,9 @@ def main(args):
                         mynode.threshold = thr
                         mynode.left = self._single_node(X_left, y_left, birth_time + 1)
                         mynode.right = self._single_node(X_right, y_right, birth_time + 2)
-                        #print(mynode.left.node_score, mynode.right.node_score)
-                        print(mynode.left.node_classes, mynode.right.node_classes)
+                        print("scores", mynode.left.node_score, mynode.right.node_score)        #TODO: HERHEREHRHER
+                        print("classes", mynode.left.node_classes, mynode.right.node_classes)   #TODO: HERHEREHRHER
+                        #print(len(mynode.left.y), len(mynode.right.y))
                         hq.heappush(self.frontiers, mynode.left)
                         hq.heappush(self.frontiers, mynode.right)
                         depth += 1
