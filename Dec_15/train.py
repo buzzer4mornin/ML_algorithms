@@ -24,7 +24,12 @@
 #   which was created sooner (a left child is considered to be created
 #   before a right child).
 
-import numpy as np
-a = np.array([1,2,3])
+import heapq as hq
+h = []
+hq.heappush(h, (5, 6))
+hq.heappush(h, (7, 1))
+hq.heappush(h, (1, 3))
+hq.heappush(h, (3, 5))
+y = hq.heappop(h)
+print(y)
 
-b = a.copy()
