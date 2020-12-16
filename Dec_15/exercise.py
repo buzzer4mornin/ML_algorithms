@@ -49,7 +49,7 @@ def main(args):
         else:
             best_gini = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_parent if (n / len(y)) != 0)
 
-        print("initial gini:", best_gini, "\n=====================")
+        print("initial {}:".format(args.criterion), best_gini, "\n=====================")
         best_idx, best_thr = None, None
 
         # Loop through all features.
@@ -67,16 +67,16 @@ def main(args):
                 c = classes[i - 1]
                 num_left[c] += 1
                 num_right[c] -= 1
-                gini_left = i * sum(
-                    (num_left[x] / i) * (1 - (num_left[x] / i)) for x in range(4)
-                )
-                gini_right = (len(y) - i) * sum(
-                    (num_right[x] / (len(y) - i)) * (1 - (num_right[x] / (len(y) - i))) for x in range(4)
-                )
+                if args.criterion == "gini":
+                    gini_left = sum((num_left[x] / i) * (1 - (num_left[x] / i)) for x in range(4))
+                    gini_right = sum((num_right[x] / (len(y) - i)) * (1 - (num_right[x] / (len(y) - i))) for x in range(4))
+                else:
+                    gini_left = -1 * sum((num_left[x] / i) * np.log(num_left[x] / i) for x in range(4) if (num_left[x] / i) != 0)
+                    gini_right = -1 * sum((num_right[x] / (len(y) - i)) * np.log((num_right[x] / (len(y) - i))) for x in range(4) if (num_right[x] / (len(y) - i)) != 0)
 
                 # The Gini impurity of a split is the weighted average of the Gini
                 # impurity of the children.
-                gini = (gini_left + gini_right) / len(y)
+                gini = (i * gini_left + (len(y) - i) * gini_right) / len(y)
 
                 # The following condition is to make sure we don't try to split two
                 # points with identical values for that feature, as it is impossible
