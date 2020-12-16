@@ -114,10 +114,16 @@ def main(args):
             # largest population.
             num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes_)]
             predicted_class = np.argmax(num_samples_per_class)
-            gini_or_entropy = ---------------
+            # Gini/Entropy of node.
+            if args.criterion == "gini":
+                gini_or_entropy = sum((n / len(y)) * (1 - (n / len(y))) for n in num_samples_per_class)
+            else:
+                gini_or_entropy = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_samples_per_class if (n / len(y)) != 0)
+
+
             node = Node(
                 # TODO: add self._gini() function
-                gini_or_entropy=,
+                gini_or_entropy=gini_or_entropy,
                 num_samples=len(y),
                 num_samples_per_class=num_samples_per_class,
                 predicted_class=predicted_class,
@@ -125,7 +131,7 @@ def main(args):
 
             # Split recursively until maximum depth is reached.
             if depth < self.max_depth:
-                idx, thr = self._best_split(X, y)
+                idx, thr = self._best_split(args, X, y)
                 if idx is not None:
                     indices_left = X[:, idx] < thr
                     X_left, y_left = X[indices_left], y[indices_left]
@@ -151,6 +157,7 @@ def main(args):
                     node = node.right
             return node.predicted_class
 
+    my_Tree = DecisionTreeClassifier()
 
     # TODO: Finally, measure the training and testing accuracy.
     train_accuracy = None
