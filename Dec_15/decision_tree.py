@@ -51,15 +51,12 @@ def main(args):
             self.node_idx = node_idx
             self.node_thr = node_thr
             self.node_classes = node_classes
-
             if self.node_score is None:
                 self.node_score = -1000
 
         def __lt__(self, other):
             return self.birth_time < other.birth_time if self.node_score == other.node_score else self.node_score > other.node_score
 
-        def is_leaf(self):
-            return True if self.left == None and self.right == None else False
 
     class DecisionTreeClassifier:
         def __init__(self):
@@ -69,24 +66,21 @@ def main(args):
 
 
         def _best_split(self, X, y):
-            # Need at least two elements to split a node.
 
             # Count of each class in the current node.
-            num_parent = [np.sum(y == c) for c in range(self.n_classes_)]
+            num_classes = [np.sum(y == c) for c in range(self.n_classes_)]
 
-            if len(y) < args.min_to_split:  # +++
-                return None, None, None, num_parent
+            # Check out --min_to_split condition
+            if len(y) < args.min_to_split:
+                return None, None, None, num_classes
 
             # Gini/Entropy of current node.
             if args.criterion == "gini":
-                best_gini = sum((n / len(y)) * (1 - (n / len(y))) for n in num_parent)
+                best_score = sum((n / len(y)) * (1 - (n / len(y))) for n in num_classes)
             else:
-                best_gini = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_parent if (n / len(y)) != 0)
+                best_score = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_classes if (n / len(y)) != 0)
 
-            best_gini_init = best_gini
-
-            #if len(y) == 48:
-            #    print("demonstrate1:", best_gini)
+            init_score = best_score
 
             best_idx, best_thr = None, None
 
@@ -96,7 +90,7 @@ def main(args):
                 thresholds, classes = zip(*sorted(zip(X[:, idx], y)))
 
                 num_left = [0] * self.n_classes_
-                num_right = num_parent.copy()
+                num_right = num_classes.copy()
 
                 # Possible split positions
                 for i in range(1, len(y)):
@@ -105,35 +99,30 @@ def main(args):
                     num_right[c] -= 1
 
                     if args.criterion == "gini":
-                        gini_left = sum((num_left[x] / i) * (1 - (num_left[x] / i)) for x in range(self.n_classes_))
-                        gini_right = sum((num_right[x] / (len(y) - i)) * (1 - (num_right[x] / (len(y) - i))) for x in
+                        score_left = sum((num_left[x] / i) * (1 - (num_left[x] / i)) for x in range(self.n_classes_))
+                        score_right = sum((num_right[x] / (len(y) - i)) * (1 - (num_right[x] / (len(y) - i))) for x in
                                          range(self.n_classes_))
                     else:
-                        gini_left = -1 * sum(
+                        score_left = -1 * sum(
                             (num_left[x] / i) * np.log(num_left[x] / i) for x in range(self.n_classes_) if
                             (num_left[x] / i) != 0)
-                        gini_right = -1 * sum(
+                        score_right = -1 * sum(
                             (num_right[x] / (len(y) - i)) * np.log((num_right[x] / (len(y) - i))) for x in
                             range(self.n_classes_) if (num_right[x] / (len(y) - i)) != 0)
 
                     # The Gini/Entropy of a split is the weighted average of children
-                    gini = (i * gini_left + (len(y) - i) * gini_right) / len(y)
+                    score = (i * score_left + (len(y) - i) * score_right) / len(y)
 
                     if thresholds[i] == thresholds[i - 1]:
                         continue
 
-                    if gini < best_gini:
-                        best_gini = gini
+                    if score < best_score:
+                        best_score = score
                         best_idx = idx
                         best_thr = (thresholds[i] + thresholds[i - 1]) / 2  # midpoint
 
-            #if len(y) == 48:
-            #    print("demonstrate2:", best_gini)
-
-            #TODO: reverse??
-            delta_gini = best_gini_init - best_gini
-
-            return best_idx, best_thr, delta_gini, num_parent
+            delta_gini = init_score - best_score
+            return best_idx, best_thr, delta_gini, num_classes
 
         def fit(self, X, y):
             """Build decision tree classifier."""
@@ -175,7 +164,6 @@ def main(args):
             return single_node
 
         def _grow_tree(self, X, y, depth=0, birth_time=0):
-
             root_node = self._single_node(X, y, birth_time=0)
 
             hq.heappush(self.frontiers, root_node)
@@ -190,25 +178,20 @@ def main(args):
             while max_leaves < self.max_leaves:
                 if depth < self.max_depth:
                     mynode = hq.heappop(self.frontiers)
-                    #print(mynode.num_samples)
                     idx, thr, X, y = mynode.node_idx, mynode.node_thr, mynode.X, mynode.y
                     X = np.array(X)
                     y = np.array(y)
                     if idx is not None:
-                        #print(mynode.node_classes)
-                        #X = mynode.X
-                        #y = mynode.y
                         indices_left = X[:, idx] < thr
                         X_left, y_left = X[indices_left], y[indices_left]
                         X_right, y_right = X[~indices_left], y[~indices_left]
                         mynode.feature_index = idx
                         mynode.threshold = thr
-                        mynode.left = self._single_node(np.array(X_left), np.array(y_left), birth_time + 1) # TODO: ITS HERE! Node length of 38 cant be partioned into [0,6,32]
+                        mynode.left = self._single_node(np.array(X_left), np.array(y_left), birth_time + 1)
                         mynode.right = self._single_node(np.array(X_right), np.array(y_right), birth_time + 2)
-                        #TODO: implement GINI GAIN not [return best_gini in _best_split()]
-                        print("scores", mynode.left.node_score, mynode.right.node_score)
-                        print("classes", mynode.left.node_classes, mynode.right.node_classes)   #TODO: reason is min_to_split is 40 and node has 38 ---> python3 decision_tree.py --criterion=gini --min_to_split=40 --max_leaves=4 --seed=92
-                        print(len(mynode.left.y), len(mynode.right.y))
+                        print("Left vs Right score:", mynode.left.node_score, mynode.right.node_score)
+                        print("Left vs Right classes:", mynode.left.node_classes, mynode.right.node_classes)
+                        print("Left vs Right length:", len(mynode.left.y), len(mynode.right.y), "\n =================")
                         hq.heappush(self.frontiers, mynode.left)
                         hq.heappush(self.frontiers, mynode.right)
                         depth += 1
@@ -218,49 +201,6 @@ def main(args):
                     break
 
             return root_node
-
-
-        '''def _grow_tree(self, X, y, depth=0, max_leaves=0, c_time=0):
-            """Build a decision tree by recursively finding the best split."""
-            # Population for each class in current node. The predicted class is the one with largest population.
-            num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes_)]
-            predicted_class = np.argmax(num_samples_per_class)
-
-            # Gini/Entropy of node.
-            if args.criterion == "gini":
-                gini_or_entropy = sum((n / len(y)) * (1 - (n / len(y))) for n in num_samples_per_class)
-            else:
-                gini_or_entropy = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_samples_per_class if (n / len(y)) != 0)
-
-            node_score = self._best_split(X, y)[2]
-
-            node = Node(
-                # TODO: add self._gini() function
-                gini_or_entropy=gini_or_entropy,
-                num_samples=len(y),
-                num_samples_per_class=num_samples_per_class,
-                predicted_class=predicted_class,
-                node_score=node_score
-            )
-
-            # Split recursively until maximum depth is reached.
-            if self.max_depth == None:
-                self.max_depth = 1000  # arbitrary number
-
-            if depth < self.max_depth:
-                idx, thr, best_gini = self._best_split(X, y)
-                #c_time += 1
-                #hq.heappush(self.heapq, (best_gini, c_time))
-                if idx is not None:
-                    indices_left = X[:, idx] < thr
-                    X_left, y_left = X[indices_left], y[indices_left]
-                    X_right, y_right = X[~indices_left], y[~indices_left]
-                    print(len(y_right), len(y_left))
-                    node.feature_index = idx
-                    node.threshold = thr
-                    node.left = self._grow_tree(X_left, y_left, depth + 1)
-                    node.right = self._grow_tree(X_right, y_right, depth + 1)
-            return node'''
 
         def predict(self, X):
             return [self._predict(inputs) for inputs in X]
