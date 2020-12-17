@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import itertools
 
 import numpy as np
 import sklearn.datasets
@@ -15,7 +16,7 @@ parser.add_argument("--max_depth", default=None, type=int, help="Maximum decisio
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")
 parser.add_argument("--test_size", default=42, type=lambda x:int(x) if x.isdigit() else float(x), help="Test set size")
-parser.add_argument("--trees", default=3, type=int, help="Number of trees in the forest")
+parser.add_argument("--trees", default=1, type=int, help="Number of trees in the forest")
 # If you add more arguments, ReCodEx will keep them with your default values.
 
 def main(args):
@@ -159,21 +160,22 @@ def main(args):
         tree.fit(train_data, train_target)
         trees_list.append(tree)
 
-    train_t = []
-    for row in train_data:
-        votes = [0] * len(set(train_target))
-        for tree in trees_list:
-            pred = tree._predict(row)
-            votes[pred] += 1
-        train_t.append(np.argmax(votes))
+    train_t, test_t = [], []
+    for row_train, row_test in itertools.zip_longest(train_data, test_data):
+        if row_test is not None:
+            votes_train, votes_test = [0] * len(set(train_target)), [0] * len(set(train_target))
+            for tree in trees_list:
+                pred_train, pred_test = tree._predict(row_train), tree._predict(row_test)
+                votes_train[pred_train] += 1
+                votes_test[pred_test] += 1
+            train_t.append(np.argmax(votes_train)), test_t.append(np.argmax(votes_test))
+            continue
 
-    test_t = []
-    for row in test_data:
-        votes = [0] * len(set(train_target))
+        votes_train = [0] * len(set(train_target))
         for tree in trees_list:
-            pred = tree._predict(row)
-            votes[pred] += 1
-        test_t.append(np.argmax(votes))
+            pred_train = tree._predict(row_train)
+            votes_train[pred_train] += 1
+        train_t.append(np.argmax(votes_train))
 
     # TODO: Finally, measure the training and testing accuracy.
     train_accuracy = sklearn.metrics.accuracy_score(train_t, train_target)

@@ -33,6 +33,7 @@
 #
 # During prediction, use voting to find the most frequent class for a given
 # input, choosing the one with smallest class index in case of a tie.
+import itertools
 
 import numpy as np
 
@@ -63,8 +64,10 @@ my= _best_split(a)
 
 generator = np.random.RandomState(42)
 a = generator.uniform(size=4) <= 1
-print(a)
+#print(a)
 
-for i,j in enumerate(a):
-    if j:
-        print(i)
+b = [1,2,3,4,6,7,8]
+c = [1,2,3]
+
+for i, j in itertools.zip_longest(b, c):
+    print(i, j)
