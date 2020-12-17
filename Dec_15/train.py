@@ -1,28 +1,37 @@
-# TODO: Create a decision tree on the trainining data.
+# TODO: Create a random forest on the trainining data.
 #
-# - For each node, predict the most frequent class (and the one with
-#   smallest index if there are several such classes).
+# For determinism, create a generator
+#   generator = np.random.RandomState(args.seed)
+# at the beginning and then use this instance for all random number generation.
 #
-# - When splitting a node, consider the features in sequential order, then
-#   for each feature consider all possible split points ordered in ascending
-#   value, and perform the first encountered split descreasing the criterion
-#   the most. Each split point is an average of two nearest unique feature values
-#   of the instances corresponding to the given node (i.e., for four instances
-#   with values 1, 7, 3, 3 the split points are 2 and 5).
+# Use a simplified decision tree from the `decision_tree` assignment:
+# - use `entropy` as the criterion
+# - use `max_depth` constraint, so split a node only if:
+#   - its depth is less than `args.max_depth`
+#   - the criterion is not 0 (the corresponding instance targetsare not the same)
+# When splitting nodes, proceed in the depth-first order, splitting all nodes
+# in left subtrees before nodes in right subtrees.
 #
-# - Allow splitting a node only if:
-#   - when `args.max_depth` is not None, its depth must be less than `args.max_depth`;
-#     depth of the root node is zero;
-#   - there are at least `args.min_to_split` corresponding instances;
-#   - the criterion value is not zero.
+# Additionally, implement:
+# - feature subsampling: when searching for the best split, try only
+#   a subset of features. When splitting a node, start by generating
+#   a feature mask using
+#     generator.uniform(size=number_of_features) <= feature_subsampling
+#   which gives a boolean value for every feature, with `True` meaning the
+#   feature is used during best split search, and `False` it is not.
+#   (When feature_subsampling == 1, all features are used, but the mask
+#   should still be generated.)
 #
-# - When `args.max_leaves` is None, use recursive (left descendants first, then
-#   right descendants) approach, splitting every node if the constraints are valid.
-#   Otherwise (when `args.max_leaves` is not None), always split a node where the
-#   constraints are valid and the overall criterion value (c_left + c_right - c_node)
-#   decreases the most. If there are several such nodes, choose the one
-#   which was created sooner (a left child is considered to be created
-#   before a right child).
+# - train a random forest consisting of `args.trees` decision trees
+#
+# - if `args.bootstrapping` is set, right before training a decision tree,
+#   create a bootstrap sample of the training data using the following indices
+#     indices = generator.choice(len(train_data), size=len(train_data))
+#   and if `args.bootstrapping` is not set, use the original training data.
+#
+# During prediction, use voting to find the most frequent class for a given
+# input, choosing the one with smallest class index in case of a tie.
+
 import numpy as np
 
 def _best_split(y):
