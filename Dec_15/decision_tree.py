@@ -22,11 +22,6 @@ parser.add_argument("--test_size", default=42, type=lambda x:int(x) if x.isdigit
 # If you add more arguments, ReCodEx will keep them with your default values.
 
 
-# If you add more arguments, ReCodEx will keep them with your default values.
-
-
-# If you add more arguments, ReCodEx will keep them with your default values.
-
 def main(args):
     # Use the wine dataset
     data, target = sklearn.datasets.load_wine(return_X_y=True)

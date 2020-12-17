@@ -11,7 +11,9 @@
 #   - the criterion is not 0 (the corresponding instance targetsare not the same)
 # When splitting nodes, proceed in the depth-first order, splitting all nodes
 # in left subtrees before nodes in right subtrees.
-#
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 # Additionally, implement:
 # - feature subsampling: when searching for the best split, try only
 #   a subset of features. When splitting a node, start by generating
