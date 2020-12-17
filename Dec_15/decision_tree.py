@@ -24,6 +24,9 @@ parser.add_argument("--test_size", default=42, type=lambda x:int(x) if x.isdigit
 
 # If you add more arguments, ReCodEx will keep them with your default values.
 
+
+# If you add more arguments, ReCodEx will keep them with your default values.
+
 def main(args):
     # Use the wine dataset
     data, target = sklearn.datasets.load_wine(return_X_y=True)
@@ -34,7 +37,8 @@ def main(args):
         data, target, test_size=args.test_size, random_state=args.seed)
 
     class Node:
-        def __init__(self, X, y, gini_or_entropy, num_samples, num_samples_per_class, predicted_class, node_score, node_idx, node_thr,
+        def __init__(self, X, y, gini_or_entropy, num_samples, num_samples_per_class, predicted_class, node_score,
+                     node_idx, node_thr,
                      node_classes, birth_time):
             self.node_score = node_score
             self.birth_time = birth_time
@@ -57,13 +61,11 @@ def main(args):
         def __lt__(self, other):
             return self.birth_time < other.birth_time if self.node_score == other.node_score else self.node_score > other.node_score
 
-
     class DecisionTreeClassifier:
         def __init__(self):
             self.max_depth = args.max_depth
             self.max_leaves = args.max_leaves
             self.frontiers = []
-
 
         def _best_split(self, X, y):
 
@@ -101,7 +103,7 @@ def main(args):
                     if args.criterion == "gini":
                         score_left = sum((num_left[x] / i) * (1 - (num_left[x] / i)) for x in range(self.n_classes_))
                         score_right = sum((num_right[x] / (len(y) - i)) * (1 - (num_right[x] / (len(y) - i))) for x in
-                                         range(self.n_classes_))
+                                          range(self.n_classes_))
                     else:
                         score_left = -1 * sum(
                             (num_left[x] / i) * np.log(num_left[x] / i) for x in range(self.n_classes_) if
@@ -130,7 +132,6 @@ def main(args):
             self.n_features_ = X.shape[1]
             self.tree_ = self._grow_tree(X, y)
 
-
         def _single_node(self, new_X, new_y, birth_time):
             """Build a decision tree by recursively finding the best split."""
             # Population for each class in current node. The predicted class is the one with largest population.
@@ -143,7 +144,6 @@ def main(args):
             else:
                 gini_or_entropy = -1 * sum(
                     (n / len(new_y)) * np.log(n / len(new_y)) for n in num_samples_per_class if (n / len(new_y)) != 0)
-
 
             node_idx, node_thr, node_score, node_classes = self._best_split(new_X, new_y)
 
@@ -160,7 +160,6 @@ def main(args):
                 node_classes=node_classes,
                 birth_time=birth_time
             )
-
             return single_node
 
         def _grow_tree(self, X, y, depth=0, birth_time=0):
@@ -175,31 +174,45 @@ def main(args):
             if self.max_depth is None:
                 self.max_depth = 1000
 
-            while max_leaves < self.max_leaves:
+            if self.max_leaves is None:
                 if depth < self.max_depth:
-                    mynode = hq.heappop(self.frontiers)
-                    idx, thr, X, y = mynode.node_idx, mynode.node_thr, mynode.X, mynode.y
-                    X = np.array(X)
-                    y = np.array(y)
+                    idx, thr, _, _ = self._best_split(X, y)
                     if idx is not None:
                         indices_left = X[:, idx] < thr
                         X_left, y_left = X[indices_left], y[indices_left]
                         X_right, y_right = X[~indices_left], y[~indices_left]
-                        mynode.feature_index = idx
-                        mynode.threshold = thr
-                        mynode.left = self._single_node(np.array(X_left), np.array(y_left), birth_time + 1)
-                        mynode.right = self._single_node(np.array(X_right), np.array(y_right), birth_time + 2)
-                        print("Left vs Right score:", mynode.left.node_score, mynode.right.node_score)
-                        print("Left vs Right classes:", mynode.left.node_classes, mynode.right.node_classes)
-                        print("Left vs Right length:", len(mynode.left.y), len(mynode.right.y), "\n =================")
-                        hq.heappush(self.frontiers, mynode.left)
-                        hq.heappush(self.frontiers, mynode.right)
-                        depth += 1
-                        birth_time += 1
-                    max_leaves = len(self.frontiers)
-                else:
-                    break
-
+                        print(len(y_right), len(y_left))
+                        root_node.feature_index = idx
+                        root_node.threshold = thr
+                        root_node.left = self._grow_tree(X_left, y_left, depth + 1)
+                        root_node.right = self._grow_tree(X_right, y_right, depth + 1)
+            else:
+                while max_leaves < self.max_leaves:
+                    if depth < self.max_depth:
+                        mynode = hq.heappop(self.frontiers)
+                        if mynode.node_score == -1000:
+                            break
+                        idx, thr, X, y = mynode.node_idx, mynode.node_thr, mynode.X, mynode.y
+                        X = np.array(X)
+                        y = np.array(y)
+                        if idx is not None:
+                            indices_left = X[:, idx] < thr
+                            X_left, y_left = X[indices_left], y[indices_left]
+                            X_right, y_right = X[~indices_left], y[~indices_left]
+                            mynode.feature_index = idx
+                            mynode.threshold = thr
+                            mynode.left = self._single_node(np.array(X_left), np.array(y_left), birth_time + 1)
+                            mynode.right = self._single_node(np.array(X_right), np.array(y_right), birth_time + 2)
+                            print("Left vs Right score:", mynode.left.node_score, mynode.right.node_score)
+                            print("Left vs Right classes:", mynode.left.node_classes, mynode.right.node_classes)
+                            print("Left vs Right length:", len(mynode.left.y), len(mynode.right.y), "\n =================")
+                            hq.heappush(self.frontiers, mynode.left)
+                            hq.heappush(self.frontiers, mynode.right)
+                            depth += 1
+                            birth_time += 1
+                        max_leaves = len(self.frontiers)
+                    else:
+                        break
             return root_node
 
         def predict(self, X):
