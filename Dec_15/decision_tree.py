@@ -168,9 +168,6 @@ def main(args):
             hq.heappush(self.frontiers, root_node)
             max_leaves = len(self.frontiers)
 
-            if self.max_leaves is None:
-                self.max_leaves = 1000
-
             if self.max_depth is None:
                 self.max_depth = 1000
 
@@ -187,6 +184,7 @@ def main(args):
                         root_node.left = self._grow_tree(X_left, y_left, depth + 1)
                         root_node.right = self._grow_tree(X_right, y_right, depth + 1)
             else:
+
                 while max_leaves < self.max_leaves:
                     if depth < self.max_depth:
                         mynode = hq.heappop(self.frontiers)
