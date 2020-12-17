@@ -52,6 +52,9 @@ def main(args):
             self.node_thr = node_thr
             self.node_classes = node_classes
 
+            if self.node_score is None:
+                self.node_score = -1000
+
         def __lt__(self, other):
             return self.birth_time < other.birth_time if self.node_score == other.node_score else self.node_score > other.node_score
 
@@ -67,11 +70,12 @@ def main(args):
 
         def _best_split(self, X, y):
             # Need at least two elements to split a node.
-            if len(y) < args.min_to_split:  # +++
-                return None, None, None, None
 
             # Count of each class in the current node.
             num_parent = [np.sum(y == c) for c in range(self.n_classes_)]
+
+            if len(y) < args.min_to_split:  # +++
+                return None, None, None, num_parent
 
             # Gini/Entropy of current node.
             if args.criterion == "gini":
@@ -79,8 +83,10 @@ def main(args):
             else:
                 best_gini = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_parent if (n / len(y)) != 0)
 
-            if len(y) == 48:
-                print("demonstrate1:", best_gini)
+            best_gini_init = best_gini
+
+            #if len(y) == 48:
+            #    print("demonstrate1:", best_gini)
 
             best_idx, best_thr = None, None
 
@@ -120,10 +126,14 @@ def main(args):
                         best_gini = gini
                         best_idx = idx
                         best_thr = (thresholds[i] + thresholds[i - 1]) / 2  # midpoint
-            if len(y) == 48:
-                print("demonstrate2:", best_gini)
 
-            return best_idx, best_thr, best_gini, num_parent
+            #if len(y) == 48:
+            #    print("demonstrate2:", best_gini)
+
+            #TODO: reverse??
+            delta_gini = best_gini_init - best_gini
+
+            return best_idx, best_thr, delta_gini, num_parent
 
         def fit(self, X, y):
             """Build decision tree classifier."""
