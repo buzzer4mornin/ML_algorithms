@@ -46,14 +46,13 @@ def main(args):
 
 
         def _best_split(self, X, y):
-
             # Count of each class in the current node.
             num_parent = [np.sum(y == c) for c in range(self.n_classes_)]
 
             # Entropy of current node.
             best_entropy = sum((n / len(y)) * (1 - (n / len(y))) for n in num_parent)
 
-            if best_entropy == 0 or len(y) < args.min_to_split:
+            if best_entropy == 0:
                 return None, None
 
             best_idx, best_thr = None, None
@@ -96,6 +95,8 @@ def main(args):
             self.n_classes_ = len(set(y))
             self.n_features_ = X.shape[1]
             self.tree_ = self._grow_tree(X, y)
+            print(generator.uniform(size=self.n_features_))
+
 
         def _grow_tree(self, X, y, depth=0):
             num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes_)]
