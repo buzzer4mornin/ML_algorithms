@@ -15,7 +15,7 @@ parser.add_argument("--max_depth", default=None, type=int, help="Maximum decisio
 parser.add_argument("--recodex", default=False, action="store_true", help="Running in ReCodEx")
 parser.add_argument("--seed", default=42, type=int, help="Random seed")
 parser.add_argument("--test_size", default=42, type=lambda x:int(x) if x.isdigit() else float(x), help="Test set size")
-parser.add_argument("--trees", default=1, type=int, help="Number of trees in the forest")
+parser.add_argument("--trees", default=3, type=int, help="Number of trees in the forest")
 # If you add more arguments, ReCodEx will keep them with your default values.
 
 def main(args):
@@ -43,7 +43,7 @@ def main(args):
     class DecisionTreeClassifier:
         def __init__(self):
             self.max_depth = args.max_depth
-
+            self.feature_subsampling = args.feature_subsampling
 
         def _best_split(self, X, y):
             # Count of each class in the current node.
@@ -57,37 +57,40 @@ def main(args):
 
             best_idx, best_thr = None, None
 
+            sub_futures = generator.uniform(size=self.n_features_) <= self.feature_subsampling
+
             # Loop through all features.
-            for idx in range(self.n_features_):
-                # Sort data along selected feature.
-                thresholds, classes = zip(*sorted(zip(X[:, idx], y)))
+            for idx, true in enumerate(sub_futures):
+                if true:
+                    # Sort data along selected feature.
+                    thresholds, classes = zip(*sorted(zip(X[:, idx], y)))
 
-                num_left = [0] * self.n_classes_
-                num_right = num_parent.copy()
+                    num_left = [0] * self.n_classes_
+                    num_right = num_parent.copy()
 
-                # Possible split positions
-                for i in range(1, len(y)):
-                    c = classes[i - 1]
-                    num_left[c] += 1
-                    num_right[c] -= 1
+                    # Possible split positions
+                    for i in range(1, len(y)):
+                        c = classes[i - 1]
+                        num_left[c] += 1
+                        num_right[c] -= 1
 
-                    entropy_left = -1 * sum(
-                        (num_left[x] / i) * np.log(num_left[x] / i) for x in range(self.n_classes_) if
-                        (num_left[x] / i) != 0)
-                    entropy_right = -1 * sum(
-                        (num_right[x] / (len(y) - i)) * np.log((num_right[x] / (len(y) - i))) for x in
-                        range(self.n_classes_) if (num_right[x] / (len(y) - i)) != 0)
+                        entropy_left = -1 * sum(
+                            (num_left[x] / i) * np.log(num_left[x] / i) for x in range(self.n_classes_) if
+                            (num_left[x] / i) != 0)
+                        entropy_right = -1 * sum(
+                            (num_right[x] / (len(y) - i)) * np.log((num_right[x] / (len(y) - i))) for x in
+                            range(self.n_classes_) if (num_right[x] / (len(y) - i)) != 0)
 
-                    # Entropy of a split is the weighted average of children
-                    entropy = (i * entropy_left + (len(y) - i) * entropy_right) / len(y)
+                        # Entropy of a split is the weighted average of children
+                        entropy = (i * entropy_left + (len(y) - i) * entropy_right) / len(y)
 
-                    if thresholds[i] == thresholds[i - 1]:
-                        continue
+                        if thresholds[i] == thresholds[i - 1]:
+                            continue
 
-                    if entropy < best_entropy:
-                        best_entropy = entropy
-                        best_idx = idx
-                        best_thr = (thresholds[i] + thresholds[i - 1]) / 2  # midpoint
+                        if entropy < best_entropy:
+                            best_entropy = entropy
+                            best_idx = idx
+                            best_thr = (thresholds[i] + thresholds[i - 1]) / 2  # midpoint
 
             return best_idx, best_thr
 
@@ -95,7 +98,7 @@ def main(args):
             self.n_classes_ = len(set(y))
             self.n_features_ = X.shape[1]
             self.tree_ = self._grow_tree(X, y)
-            print(generator.uniform(size=self.n_features_))
+
 
 
         def _grow_tree(self, X, y, depth=0):
@@ -141,10 +144,36 @@ def main(args):
                     node = node.right
             return node.predicted_class
 
-    # Initiate obj
-    my_Tree = DecisionTreeClassifier()
-    my_Tree.fit(train_data, train_target)
-    train_t, test_t = my_Tree.predict(train_data), my_Tree.predict(test_data)
+    # Predictions by VOTING
+    '''votes = [0] * len(set(train_target))
+    trees_dict = {}
+    for i in range(args.trees):
+        tree = DecisionTreeClassifier()
+        tree.fit(train_data, train_target)
+        train_t, test_t = tree.predict(train_data), tree.predict(test_data)
+        trees_dict[i] = [train_t, test_t]
+    print(trees_dict)'''
+    trees_list = []
+    for i in range(args.trees):
+        tree = DecisionTreeClassifier()
+        tree.fit(train_data, train_target)
+        trees_list.append(tree)
+
+    train_t = []
+    for row in train_data:
+        votes = [0] * len(set(train_target))
+        for tree in trees_list:
+            pred = tree._predict(row)
+            votes[pred] += 1
+        train_t.append(np.argmax(votes))
+
+    test_t = []
+    for row in test_data:
+        votes = [0] * len(set(train_target))
+        for tree in trees_list:
+            pred = tree._predict(row)
+            votes[pred] += 1
+        test_t.append(np.argmax(votes))
 
     # TODO: Finally, measure the training and testing accuracy.
     train_accuracy = sklearn.metrics.accuracy_score(train_t, train_target)
@@ -156,5 +185,5 @@ if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     train_accuracy, test_accuracy = main(args)
 
-    #print("Train accuracy: {:.1f}%".format(100 * train_accuracy))
-    #print("Test accuracy: {:.1f}%".format(100 * test_accuracy))
+    print("Train accuracy: {:.1f}%".format(100 * train_accuracy))
+    print("Test accuracy: {:.1f}%".format(100 * test_accuracy))

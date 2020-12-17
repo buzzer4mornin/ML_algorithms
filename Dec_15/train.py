@@ -58,4 +58,13 @@ a = [1,2,2,2,2,2,2,2,2,2,2 ,2 ,1 ,2 ,2 ,2, 2, 1 ,2 ,2 ,2 ,2 ,2 ,2 ,1 ,2 ,1 ,2 ,2
 a = list(a)
 a = np.array(a)
 my= _best_split(a)
-print(my)
+#print(my)
+
+
+generator = np.random.RandomState(42)
+a = generator.uniform(size=4) <= 1
+print(a)
+
+for i,j in enumerate(a):
+    if j:
+        print(i)
