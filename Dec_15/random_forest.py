@@ -101,7 +101,6 @@ def main(args):
             self.tree_ = self._grow_tree(X, y)
 
 
-
         def _grow_tree(self, X, y, depth=0):
             num_samples_per_class = [np.sum(y == i) for i in range(self.n_classes_)]
             predicted_class = np.argmax(num_samples_per_class)
@@ -157,7 +156,11 @@ def main(args):
     trees_list = []
     for i in range(args.trees):
         tree = DecisionTreeClassifier()
-        tree.fit(train_data, train_target)
+        if args.bootstrapping is True:
+            indices = generator.choice(len(train_data), size=len(train_data))
+            tree.fit(train_data[indices], train_target[indices])
+        else:
+            tree.fit(train_data, train_target)
         trees_list.append(tree)
 
     train_t, test_t = [], []

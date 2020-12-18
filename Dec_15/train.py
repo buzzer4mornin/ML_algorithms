@@ -36,38 +36,3 @@
 import itertools
 
 import numpy as np
-
-def _best_split(y):
-    criterion= "gini"
-    # Need at least two elements to split a node.
-    if len(y) < 40:  # +++
-        return None, None, None, None
-
-    # Count of each class in the current node.
-    num_parent = [np.sum(y == c) for c in range(3)]
-
-    # Gini/Entropy of current node.
-    if criterion == "gini":
-        best_gini = sum((n / len(y)) * (1 - (n / len(y))) for n in num_parent)
-        #best_gini = 1.0 - sum((n / len(y)) ** 2 for n in num_parent)
-    else:
-        best_gini = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_parent if (n / len(y)) != 0)
-
-    return num_parent
-
-a = [1,2,2,2,2,2,2,2,2,2,2 ,2 ,1 ,2 ,2 ,2, 2, 1 ,2 ,2 ,2 ,2 ,2 ,2 ,1 ,2 ,1 ,2 ,2 ,2, 2, 2, 1 ,2 ,2 ,2 ,2,2]
-a = list(a)
-a = np.array(a)
-my= _best_split(a)
-#print(my)
-
-
-generator = np.random.RandomState(42)
-a = generator.uniform(size=4) <= 1
-#print(a)
-
-b = [1,2,3,4,6,7,8]
-c = [1,2,3]
-
-for i, j in itertools.zip_longest(b, c):
-    print(i, j)
