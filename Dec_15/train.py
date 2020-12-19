@@ -34,5 +34,33 @@
 # During prediction, use voting to find the most frequent class for a given
 # input, choosing the one with smallest class index in case of a tie.
 import itertools
+import operator
 
 import numpy as np
+
+
+class Student:
+   def __init__(self, first_name, last_name):
+      self.first_name = first_name
+      self.last_name = last_name
+
+   @property
+   def name(self):
+      print("Getter for the name")
+      return f"{self.first_name} {self.last_name}"
+
+   @name.setter
+   def name(self, name):
+      print("Setter for the name")
+      self.first_name, self.last_name = name.split()
+
+
+b = 1000
+sa = 2
+
+#print(f"Hello, {a}. You are {b}.")
+
+a = np.array([2,3])
+b = np.array([4,5])
+c = a.__deepcopy__(b)
+print(c)
