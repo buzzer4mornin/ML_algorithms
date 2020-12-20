@@ -38,29 +38,14 @@ import operator
 
 import numpy as np
 
-
-class Student:
-   def __init__(self, first_name, last_name):
-      self.first_name = first_name
-      self.last_name = last_name
-
-   @property
-   def name(self):
-      print("Getter for the name")
-      return f"{self.first_name} {self.last_name}"
-
-   @name.setter
-   def name(self, name):
-      print("Setter for the name")
-      self.first_name, self.last_name = name.split()
+def my(*args):
+   for i in len(args):
+      print(args[i])
+         #args[i] *= 2
+   #return args
 
 
-b = 1000
-sa = 2
+a = my(2,5)
+#print(a)
 
-#print(f"Hello, {a}. You are {b}.")
 
-a = np.array([2,3])
-b = np.array([4,5])
-c = a.__deepcopy__(b)
-print(c)
