@@ -37,15 +37,12 @@ import itertools
 import operator
 
 import numpy as np
+import pandas as pd
 
-def my(*args):
-   for i in len(args):
-      print(args[i])
-         #args[i] *= 2
-   #return args
+a = np.random.rand(3, 4)
+print(a)
 
-
-a = my(2,5)
-#print(a)
+b = np.random.random((3,4))
+print(b)
 
 

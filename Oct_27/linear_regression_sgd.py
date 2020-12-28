@@ -79,7 +79,7 @@ def main(args):
 
 
     # TODO: Compute into `explicit_rmse` test data RMSE when
-    # fitting `sklearn.linear_model.Lin earRegression` on train_data.
+    # fitting `sklearn.linear_model.LinearRegression` on train_data.
     reg = LinearRegression()
     reg.fit(train_data, train_target)
     explicit_rmse = np.sqrt(sklearn.metrics.mean_squared_error(reg.predict(test_data), test_target))

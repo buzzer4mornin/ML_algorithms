@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import argparse
-
+import sys
+print(sys.path[0])
 import numpy as np
 import sklearn.datasets
 import sklearn.metrics
 import sklearn.model_selection
 from sklearn.utils.extmath import weighted_mode
-
+#ex
 parser = argparse.ArgumentParser()
 # These arguments will be set appropriately by ReCodEx, even if you change them.
 parser.add_argument("--C", default=1, type=float, help="Inverse regularization strength")

@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-import argparse
-import lzma
-import pickle
-import os
 import urllib.request
 import sys
 import argparse
@@ -10,19 +6,9 @@ import lzma
 import os
 import pickle
 import urllib.request
-import numpy as np
 import pandas as pd
-from sklearn import svm, metrics
-import matplotlib.pyplot as plt
-import sklearn
-from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split, KFold
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import PolynomialFeatures, StandardScaler
-from sklearn.svm import LinearSVC
-from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 
 class Dataset:

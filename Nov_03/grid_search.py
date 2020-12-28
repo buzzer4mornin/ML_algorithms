@@ -15,7 +15,7 @@ import sklearn.model_selection
 import sklearn.pipeline
 import sklearn.preprocessing
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, PolynomialFeatures
 
 parser = argparse.ArgumentParser()
