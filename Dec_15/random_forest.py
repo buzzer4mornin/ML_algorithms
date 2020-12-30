@@ -51,7 +51,8 @@ def main(args):
             num_parent = [np.sum(y == c) for c in range(self.n_classes_)]
 
             # Entropy of current node.
-            best_entropy = sum((n / len(y)) * (1 - (n / len(y))) for n in num_parent)
+            best_entropy = -1 * sum((n / len(y)) * np.log(n / len(y)) for n in num_parent if (n / len(y)) != 0)
+            #best_entropy = sum((n / len(y)) * (1 - (n / len(y))) for n in num_parent)
 
             if best_entropy == 0:
                 return None, None
