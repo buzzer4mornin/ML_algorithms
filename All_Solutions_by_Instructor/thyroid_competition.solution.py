@@ -5,6 +5,7 @@ import os
 import pickle
 import urllib.request
 
+import pandas as pd
 import numpy as np
 import sklearn.compose
 import sklearn.dummy
@@ -55,7 +56,8 @@ def main(args):
         # We are training a model.
         np.random.seed(args.seed)
         train = Dataset()
-
+        print(pd.DataFrame(train.data).info())
+        exit()
         # TODO: Train a model on the given dataset and store it in `model`.
         if args.model in ["most_frequent", "stratified"]:
             model = sklearn.dummy.DummyClassifier(strategy=args.model)
