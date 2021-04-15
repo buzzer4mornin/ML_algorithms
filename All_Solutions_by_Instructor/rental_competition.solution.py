@@ -103,6 +103,8 @@ def main(args):
                     ("MLP_ensemble", sklearn.ensemble.VotingRegressor([
                         ("MLP{}".format(i), sklearn.neural_network.MLPRegressor(tol=0, learning_rate_init=0.01, max_iter=200, hidden_layer_sizes=(300,200,100), activation="relu", solver="adam")) for i in range(3)])),
                 ]
+
+
             int_columns = np.all(train.data.astype(int) == train.data, axis=0)
             model = sklearn.pipeline.Pipeline([
                 ("preprocess", sklearn.compose.ColumnTransformer([

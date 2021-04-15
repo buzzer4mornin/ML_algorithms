@@ -1,0 +1,22 @@
+=====> preprocessed_round.csv <======
+Cross-validation with 5 folds: 64.50 +-1.27
+"standard_scaler", sklearn.preprocessing.StandardScaler()
+"lr_cv": sklearn.linear_model.LogisticRegressionCV(solver='liblinear', Cs=np.geomspace(0.001, 1000, 7), max_iter=300)
+
+=====> preprocessed_round_unbalanced.csv <======
+Cross-validation with 5 folds: 67.42 +-0.03
+("minmax_scaler", sklearn.preprocessing.MinMaxScaler())
+sklearn.ensemble.AdaBoostClassifier(sklearn.linear_model.LogisticRegression(solver='liblinear', C=1), n_estimators=10)
+
+Cross-validation with 5 folds: 67.40 +-0.16
+("minmax_scaler", sklearn.preprocessing.MinMaxScaler())
+sklearn.ensemble.AdaBoostClassifier(sklearn.linear_model.LogisticRegressionCV(solver='liblinear', Cs=np.geomspace(0.001, 1000, 7)), n_estimators=20)
+
+Cross-validation with 5 folds: 67.94 +-1.75
+("minmax_scaler", sklearn.preprocessing.MinMaxScaler())
+parser.add_argument("--trees", default=500, type=int, help="Number of trees to use")
+sklearn.ensemble.RandomForestClassifier(n_estimators=args.trees, verbose=1)
+
+Cross-validation with 10 folds: 68.16 +-1.94
+parser.add_argument("--trees", default=650, type=int, help="Number of trees to use")
+sklearn.ensemble.RandomForestClassifier(n_estimators=args.trees, verbose=1)
