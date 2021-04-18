@@ -26,7 +26,7 @@ parser.add_argument("--subsample", default=0.7, type=float, help="Subsample data
 
 def main(args):
     # Read Data
-    df = pd.read_csv(r'preprocessed_round_unbalanced.csv')
+    df = pd.read_csv(r'preprocessed_round_blue.csv')
 
     # Inspect Data
     # print(df.info())
@@ -64,7 +64,7 @@ def main(args):
     df = df.drop(columns=['Winner'])
     try:
         df = df.drop(columns=['win_by'])
-        df = df.drop(columns=['date'])
+        #df = df.drop(columns=['date'])
     except:
         raise ValueError("Set Correct Dataset")
 
