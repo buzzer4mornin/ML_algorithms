@@ -101,7 +101,7 @@ def main(args):
     int_columns = np.all(X.astype(int) == X, axis=0)
 
     model = sklearn.pipeline.Pipeline([
-        # ("standard_scaler", sklearn.preprocessing.StandardScaler()),
+        ("standard_scaler", sklearn.preprocessing.StandardScaler()),
         ("minmax_scaler", sklearn.preprocessing.MinMaxScaler()),
         ("estimator", {
             "svm": sklearn.svm.SVC(verbose=1),
@@ -120,9 +120,13 @@ def main(args):
     if args.cv:
         scores = sklearn.model_selection.cross_val_score(model, X, y, cv=args.cv)
         print("Cross-validation with {} folds: {:.2f} +-{:.2f}".format(args.cv, 100 * scores.mean(), 100 * scores.std()))
+    model.fit(X, y)
 
-    #model.fit(X, y)
-
+    '''params = {'n_neighbors': range(5, 9), 'weights': ['uniform', 'distance'], 'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'], 'p': [1, 2, 3]}
+    knn = neighbors.KNeighborsRegressor()
+    model = GridSearchCV(knn, params, cv=5, scoring="neg_root_mean_squared_error")
+    model.fit(x_train, y_train)
+    print(model.best_params_)'''
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)

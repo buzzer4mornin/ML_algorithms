@@ -62,12 +62,11 @@ def main(args):
     plt.show()
     exit()'''
 
-    '''params = {'n_neighbors': range(5, 9), 'weights': ['uniform', 'distance'], 'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'], 'p': [1, 2, 3]}
+    params = {'n_neighbors': range(5, 9), 'weights': ['uniform', 'distance'], 'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'], 'p': [1, 2, 3]}
     knn = neighbors.KNeighborsRegressor()
-
     model = GridSearchCV(knn, params, cv=5, scoring="neg_root_mean_squared_error")
     model.fit(x_train, y_train)
-    print(model.best_params_)'''
+    print(model.best_params_)
 
     # Best -->  {'algorithm': 'auto', 'leaf_size': 20, 'n_neighbors': 7, 'p': 2, 'weights': 'distance'}
 
