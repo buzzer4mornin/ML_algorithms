@@ -30,8 +30,8 @@ def main(args):
 
     # Inspect Data
     # print(df.info())
-    # print(df['B_Stance_Orthodox'].value_counts())
-    # print(df['avg_SIG_STR_att_diff'].describe())
+    # print(df['col_name'].value_counts())
+    # print(df['col_name'].describe())
 
     # Drop Referee Column
     df = df.drop(columns=['Referee'])
@@ -45,7 +45,6 @@ def main(args):
     '''# Select Float Columns
     # float_cols = list(df.loc[:, df.dtypes == np.float64].columns)
     # Correlation HeatMap
-    
     # X = train.data
     # y = train.target
     # df = pd.DataFrame(np.c_[X, y])
@@ -70,39 +69,11 @@ def main(args):
 
     X = np.array(df)
 
-    '''if args.model == "lr":
-        model = [
-            # ("poly", sklearn.preprocessing.PolynomialFeatures(2)),
-            ("lr_cv", sklearn.linear_model.LogisticRegressionCV(solver='newton-cg', Cs=np.geomspace(0.001, 1000, 7), max_iter=100)),
-        ]
-    elif args.model == "adalr":
-        model = [
-            # ("poly", sklearn.preprocessing.PolynomialFeatures(2)),
-            ("ada_lr_cv",
-             sklearn.ensemble.AdaBoostClassifier(sklearn.linear_model.LogisticRegression(C=1), n_estimators=50)),
-        ]
-    elif args.model == "baglr":
-        model = [
-            # ("poly", sklearn.preprocessing.PolynomialFeatures(2)),
-            ("bag_lr_cv",
-             sklearn.ensemble.BaggingClassifier(sklearn.linear_model.LogisticRegression(solver='newton-cg', max_iter=100, C=1), n_estimators=50)),
-        ]
-    elif args.model == "badlr":
-        model = [("lr", sklearn.linear_model.LogisticRegression(solver='newton-cg'))]
-    elif args.model == "mlp":
-        model = [
-            ("MLP_ensemble", sklearn.ensemble.VotingClassifier([
-                ("MLP{}".format(i), sklearn.neural_network.MLPClassifier(tol=0, learning_rate_init=0.01, max_iter=200,
-                                                                         hidden_layer_sizes=(300, 200, 100),
-                                                                         activation="relu", solver="adam", verbose=1))
-                for i in range(3)])),
-        ]'''
-
     int_columns = np.all(X.astype(int) == X, axis=0)
 
     model = sklearn.pipeline.Pipeline([
-        ("standard_scaler", sklearn.preprocessing.StandardScaler()),
-        ("minmax_scaler", sklearn.preprocessing.MinMaxScaler()),
+        # ("standard_scaler", sklearn.preprocessing.StandardScaler()),
+        # ("minmax_scaler", sklearn.preprocessing.MinMaxScaler()),
         ("estimator", {
             "svm": sklearn.svm.SVC(verbose=1),
             "mlp": sklearn.neural_network.MLPClassifier(hidden_layer_sizes=(200, 200), solver="adam", learning_rate="constant", max_iter=100, batch_size=50, verbose=1,
@@ -127,6 +98,11 @@ def main(args):
     model = GridSearchCV(knn, params, cv=5, scoring="neg_root_mean_squared_error")
     model.fit(x_train, y_train)
     print(model.best_params_)'''
+
+
+    # Try individual models with GridSearch+CrossValidation
+    # Find best parameters for best models
+    # Pass those models into VotingClassifier
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
